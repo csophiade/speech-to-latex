@@ -38,7 +38,7 @@ RETRY = "That was not valid. Reply with ONLY the JSON object {\"candidates\": [\
 
 @lru_cache(maxsize=1)
 def _client():
-    return OpenAI(api_key=dotenv_values(config.ROOT / ".env")["OPENAI_API_KEY"])
+    return OpenAI(api_key=dotenv_values(config.ROOT / ".env")["OPENAI_API_KEY"], max_retries=8)
 
 
 @lru_cache(maxsize=1)
@@ -118,3 +118,36 @@ def to_latex_timed(transcript, context_vars=None, m=config.M_CANDIDATES, model=c
 
 def to_latex(transcript, context_vars=None, m=config.M_CANDIDATES, model=config.LLM_MODEL):
     return to_latex_timed(transcript, context_vars, m, model)[0]
+
+
+SPOKEN_SYSTEM = (
+    "You say LaTeX maths out loud. Given one LaTeX expression, return ONLY a JSON object "
+    "{\"spoken\": [...]} with {k} different natural ways a person would read it aloud in English "
+    "(e.g. \"x squared plus one\", \"x to the power of two plus one\"). Plain words; digits are fine. "
+    "No LaTeX, no symbols like ^ or \\."
+)
+
+
+def to_spoken_timed(latex, k=3, model=config.LLM_MODEL):
+    """(2-3 natural English verbalisations of a LaTeX string, seconds); [] on failure. Cached."""
+    examples = "\n".join(f"- {latex_}  ->  {spoken}" for spoken, latex_ in fewshot_pairs())
+    msgs = [{"role": "system", "content": SPOKEN_SYSTEM.replace("{k}", str(k))
+             + f"\n\nExamples of LaTeX and one way to say it:\n{examples}"},
+            {"role": "user", "content": latex}]
+    seconds = 0.0
+    for attempt in (msgs, msgs + [{"role": "user", "content": RETRY.replace("candidates", "spoken")}]):
+        text, s = llm_call(attempt, model)
+        seconds += s
+        try:
+            spoken = json.loads(text).get("spoken")
+        except (json.JSONDecodeError, AttributeError):
+            continue
+        if isinstance(spoken, list):
+            out = [x.strip() for x in spoken if isinstance(x, str) and x.strip()]
+            if out:
+                return list(dict.fromkeys(out))[:k], seconds
+    return [], seconds
+
+
+def to_spoken(latex, k=3, model=config.LLM_MODEL):
+    return to_spoken_timed(latex, k, model)[0]
