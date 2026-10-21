@@ -2,7 +2,10 @@
 .venv/
 __pycache__/
 *.pyc
-data/
+data/**
+!data/*/
+!data/*/README.md
 models/
 .cache/
 .DS_Store
+.pytest_cache/

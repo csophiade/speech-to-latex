@@ -1,0 +1,1 @@
+MathBridge (text only), streamed 50k subset. Used ONLY as a pool of few-shot (text→LaTeX, LaTeX→spoken-form) examples for LLM prompts, drawn from the 48k 'train' file. The 1k val/test files are unused. No model is trained on this.
