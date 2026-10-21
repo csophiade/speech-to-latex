@@ -4,7 +4,7 @@ import pytest
 import sympy
 
 from src import eval as ev
-from src.mathparse import parses
+from src.mathparse import parse_graded, parses
 
 # (reference, hypothesis, NEM, SymEq)
 PAIRS = [
@@ -18,7 +18,7 @@ PAIRS = [
     (r"x^2", r"x^3", False, "not_equal"),
     (r"x < 1", r"x > 1", False, "not_equal"),
     (r"y^2 = x^3 - 8x", r"y^2 = x^3 - 8", False, "not_equal"),
-    (r"\tau = \text{shear stress}", r"\tau = \text{sheer stress}", False, "unparseable"),
+    (r"\tau = \text{shear stress}", r"\tau = \text{sheer stress}", False, "not_equal"),
 ]
 
 
@@ -42,7 +42,10 @@ def test_cer():
 
 def test_unparseable_and_parse_guards():
     assert not parses(r"\text{hello world}")
-    assert not parses(r"a = b = c")
+    obj, level = parse_graded(r"a = b = c")
+    a, b, c = sympy.symbols("a b c")
+    assert level == "cleaned" and obj == sympy.Tuple(sympy.Symbol("__rel__:=,="), a, b, c)
+    assert not isinstance(obj, sympy.Eq)
     assert not parses("")
     assert parses(r"\frac{x^2 + 1}{2} = 50")
 
