@@ -1,0 +1,100 @@
+[
+  {
+    "system": "A",
+    "dataset": "s2l_test500",
+    "metrics": {
+      "n": 500,
+      "cer": 0.3777,
+      "nem": 0.288,
+      "symeq": 0.292,
+      "symeq_unparseable": 0.564,
+      "symeq_timeout": 0,
+      "latency_median_s": 1.271,
+      "parse_fail_first_candidate": 0.566,
+      "output_unparseable": 0.566,
+      "no_candidates": 4,
+      "symeq_human": 0.3259,
+      "n_human": 270,
+      "symeq_tts": 0.2522,
+      "n_tts": 230
+    },
+    "n": 500,
+    "timestamp": "2026-10-21T15:44:24+00:00",
+    "git": "32715cd",
+    "llm": "gpt-4.1-mini",
+    "asr": "openai/whisper-large-v3-turbo",
+    "seed": 42
+  },
+  {
+    "system": "B",
+    "dataset": "s2l_test500",
+    "metrics": {
+      "n": 500,
+      "cer": 0.3738,
+      "nem": 0.288,
+      "symeq": 0.292,
+      "symeq_unparseable": 0.554,
+      "symeq_timeout": 0,
+      "latency_median_s": 1.325,
+      "parse_fail_first_candidate": 0.566,
+      "output_unparseable": 0.538,
+      "no_candidates": 4,
+      "unverified_rate": 0.538,
+      "symeq_human": 0.3296,
+      "n_human": 270,
+      "symeq_tts": 0.2478,
+      "n_tts": 230
+    },
+    "n": 500,
+    "timestamp": "2026-10-21T15:46:10+00:00",
+    "git": "32715cd",
+    "llm": "gpt-4.1-mini",
+    "asr": "openai/whisper-large-v3-turbo",
+    "seed": 42
+  },
+  {
+    "system": "A",
+    "dataset": "mathspeech",
+    "metrics": {
+      "n": 1101,
+      "cer": 0.3081,
+      "nem": 0.4096,
+      "symeq": 0.5059,
+      "symeq_unparseable": 0.3043,
+      "symeq_timeout": 1,
+      "latency_median_s": 1.078,
+      "parse_fail_first_candidate": 0.2698,
+      "output_unparseable": 0.2688,
+      "no_candidates": 2
+    },
+    "n": 1101,
+    "timestamp": "2026-10-21T16:00:53+00:00",
+    "git": "32715cd",
+    "llm": "gpt-4.1-mini",
+    "asr": "openai/whisper-large-v3-turbo",
+    "seed": 42
+  },
+  {
+    "system": "B",
+    "dataset": "mathspeech",
+    "metrics": {
+      "n": 1101,
+      "cer": 0.3124,
+      "nem": 0.4024,
+      "symeq": 0.5005,
+      "symeq_unparseable": 0.3052,
+      "symeq_timeout": 1,
+      "latency_median_s": 1.111,
+      "parse_fail_first_candidate": 0.2688,
+      "output_unparseable": 0.2416,
+      "no_candidates": 2,
+      "unverified_rate": 0.2416
+    },
+    "n": 1101,
+    "timestamp": "2026-10-21T16:03:59+00:00",
+    "git": "32715cd",
+    "llm": "gpt-4.1-mini",
+    "asr": "openai/whisper-large-v3-turbo",
+    "seed": 42
+  }
+]
