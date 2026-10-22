@@ -11,7 +11,9 @@ How each planted case resolves was **measured, not assumed**. `scripts/run_demo_
 
 **Both outcomes are correct behaviour.** For a planted sound-alike, the system either corrects it automatically (when the acoustics nearly tie) or raises a red flag that names the sound-alike. Neither is a failure. The narration for both is below; use the one that happens.
 
-Colours: green = verified, amber = corrected (shows "heard / wrote"), red = math error (with the explanation), blue = ask-back, grey = unchecked. Each line shows its latency at the right, and the top-right corner shows the stage breakdown for the last line.
+**The page (top to bottom).** Options row (Accessible view, Read comments aloud, Show history, Show the words I said); the document, one row per line with its comment card beside it (like a Google Docs comment; below about 720 px wide the card sits under its line); then the input: a step heading ("Step 1 of 2 · Say the problem", then "Step 2 of 2 · Say line N", or "Answer first · Choose A or B"), the status box (Ready / Recording / Processing / Done / Needs your answer / a refusal message, all in one place), the **▶ Play next example line** button while an example runs, the microphone, **Check this line**, the closed **Type LaTeX instead** panel (with a live preview), and **Remove last line** / **Start over**. On the right of the input: "How it works" and the **Try an example** panel (dropdown + Start example). After every update the page scrolls the newest line into view and keyboard focus goes to the next action.
+
+Colours: green = verified, amber = corrected (shows "heard / wrote"), red = math error (with the explanation), blue = ask-back, grey = unchecked. Every status also has an icon and a word (✓ Follows, ✎ Corrected, ✗ Check this step, ? Did you mean …?, ? Your choice, ○ Not checked). Flags, corrections and questions appear as a comment card beside their line, with a ▶ Listen button and, on the latest line, the answer buttons. No timings are shown anywhere in the UI (a closed "Developer details" panel shows the latest line's pipeline output without timing fields). "Accessible view" gives larger text, higher contrast, larger buttons and focus rings, and turns on "Read comments aloud".
 
 ---
 
@@ -19,13 +21,13 @@ Colours: green = verified, amber = corrected (shows "heard / wrote"), red = math
 
 1. Open the demo URL (in `demo_url.txt`; local http://127.0.0.1:7860 by default) and check that the four examples appear in the dropdown. A public link needs a login: `demo/app.py --share --auth user:password` (the app refuses `--share` without `--auth`).
 2. Load "Owner's recording: clean quadratic" and step through it: three lines, all green. This warms the LLM connection.
-3. Press Reset.
-4. **Stray recordings:** a mic clip with no speech (silence, noise, a click) is rejected before ASR with "No speech detected … nothing was added", and a line whose output is empty or is leaked prompt text is never accepted. If a misheard line was added anyway, **Remove last line** takes it off (in an example, Next then replays that line); no Reset needed.
-5. Spoken explanations need the TTS server (`scripts/tts_server.py`). The app starts it if it is not running. If the server is down, the explanation appears as text in the "Spoken explanation" box with the note "(spoken explanation unavailable …)", and the demo still works.
+3. Press **Start over**.
+4. **Stray recordings:** a mic clip with no speech (silence, noise, a click) is rejected before ASR with "No speech detected … nothing was added", and a line whose output is empty or is leaked prompt text is never accepted. If a misheard line was added anyway, **Remove last line** takes it off (in an example, Play next example line then replays that line); no Start over needed.
+5. Spoken explanations need the TTS server (`scripts/tts_server.py`). The app starts it if it is not running. If the server is down, the comment card shows the text with "Spoken version unavailable", and the demo still works.
 
 ## Part 1: canned quadratic ("Quadratic: divide by x, then a planted fifteen/fifty", voice v1)
 
-Choose **Load example**, then **Next example line** once per line. Each clip plays automatically. After a flag, the spoken explanation plays when the clip ends.
+Open **Try an example** (right of the microphone), choose the example and press **Start example**, then press the blue **▶ Play next example line** button (just above the microphone; it has keyboard focus after each line, so Enter also works) once per line. Each clip plays automatically ("▶ Replay recording" plays it again). After a flag, the spoken explanation plays when the clip ends.
 
 | line | said | resolved as (dry-run) | Δ of the alternative |
 |---|---|---|---|
@@ -42,7 +44,7 @@ Choose **Load example**, then **Next example line** once per line. Each clip pla
 
 **Narration (line 2, if it ever auto-corrects instead; this did not happen in the dry-run):** "I said fifteen, but the acoustics are nearly a tie with fifty, and fifty makes the step valid. So it writes fifty and shows both: heard fifteen, wrote fifty. That's the silent-correction case δ is calibrated to keep rare: at most about 5% of spoken mistakes get 'fixed' like this."
 
-**Important:** click "Yes, I meant fifty" before going to line 3. If you don't, the line stays as said (−15), and line 3 is checked against it and also flagged red. That is correct behaviour (every line is checked against the line before it), but it's a distracting cascade on stage.
+**Important:** click "Yes, I meant fifty" (in the comment card) before going to line 3. If you don't, the line stays as said (−15), and line 3 is checked against it and also flagged red. That is correct behaviour (every line is checked against the line before it), but it's a distracting cascade on stage.
 
 ## Part 2: ask-back ("Ask-back: fifty times the quantity … equals fifteen times fifty", voice v1)
 
@@ -53,7 +55,7 @@ Choose **Load example**, then **Next example line** once per line. Each clip pla
 | 1, after clicking **B** | | "asked back: you chose B" | n/a |
 | 2 | x² + 5x = 50 | verified | n/a |
 
-**You must choose A or B before the next line.** While the blue line is unanswered, Next example line shows "Choose A or B first" and Add line refuses with the same message, because the next line is checked against the choice.
+**You must choose A or B before the next line.** While the ask-back is unanswered, the heading says "Answer first · Choose A or B", Play next example line shows "Choose A or B first", and a new recording or typed line is refused with a message in the status box, because the next line is checked against the choice.
 
 **Narration:** "Here there are two sound-alike readings, and both make the step valid. Fifty times fifty works, and so does fifteen times fifty. Picking one would be a guess, so the system asks: *did you mean fifty instead of fifteen, or fifteen instead of fifty?* I pick B, and the next line checks against my choice."
 
@@ -76,15 +78,15 @@ I did not use d044, the owner's real divide-by-x recording. The speaker says "di
 
 ## Part 4: live microphone (owner's live mic test)
 
-1. Type the problem in "Problem (line 0, LaTeX)" and click **Set problem**, or say the problem as the first line.
-2. Then, for each line: press record, say **one** line, stop, and click **Add line**.
+1. Say the problem as the first line (Step 1 of 2), or open **Type LaTeX instead**, type it (the preview renders it as you type) and press **Add typed line**. Typed lines after the problem are checked like spoken ones (✓ Follows, ✗ Check this step or ○ Not checked; never "corrected").
+2. Then, for each line: press Record, say **one** line, and press Stop. The line is checked as soon as you stop (**Check this line** is the manual fallback).
 3. Suggested script: problem `x^2 + 5x = 50`, then say "x squared plus five x minus fifteen equals zero". The dry-run with the canned clip as the "mic" gave a red flag plus "did you mean fifty?". Live speech may tie closer and auto-correct, or ask back. Every outcome is correct; narrate whichever happens using the lines above.
 
-Error messages:
+Error messages (shown in the status box above the microphone; nothing else on the page changes):
 
-- No recording: "No recording: press the microphone, say one line, stop, then Add line."
+- No recording: "No recording yet: press Record, say one line, then press Stop."
 - A clip under 0.25 s is rejected with a message.
-- LLM or network failures say which stage failed and suggest **Load example** as the fallback.
+- LLM or network failures say which stage failed and suggest trying an example as the fallback.
 
 ## Measured latency (seconds per line, RTX 4090)
 

@@ -70,6 +70,31 @@ def _warm():
     return decide_line(pool, "x + 1 = 16", 1, 0.5, 0.5)[0]["status"]
 
 
+def typed_decide(latex, prev_out, line_index):
+    """Decision for a TYPED line (no ASR, so no alternatives): the checker against prev_out, then
+    decide() on the single candidate. Only verified / math_error / unchecked are possible (given on
+    line 0); a typed line is never corrected or asked back. Main-thread only (checker SIGALRM)."""
+    from src.checker import check_step
+    from src.decide import decide
+    if line_index == 0:
+        c = {"latex": latex, "delta": 0.0, "status": "given", "explanation": None}
+    elif prev_out is None:
+        c = {"latex": latex, "delta": 0.0, "status": "unchecked", "explanation": "no earlier line to compare with"}
+    else:
+        r = check_step(prev_out, latex)
+        c = {"latex": latex, "delta": 0.0, "status": r["status"], "explanation": r["explanation"]}
+    return decide([c], 0.0, line_index)
+
+
+def readable(latex):
+    """True if the checker can read latex as a line (main-thread only)."""
+    from src.checker import read_line
+    try:
+        return read_line(latex) is not None
+    except Exception:
+        return False
+
+
 # ---------- spoken explanations ----------
 
 def swap_words(hat_latex, c_latex):
@@ -202,6 +227,27 @@ class LinePipeline:
                  "whisper_score_s": gpu["whisper_s"], "phoneme_s": gpu["phoneme_s"], **cpu,
                  "ipc_s": max(0.0, (t5 - t4) - sum(cpu.values()))}
         return self._result(d, cands, nbest, line_index, t5 - t0, parts, timing)
+
+    def _cpu(self, fn, *args):
+        """Run a picklable CPU function where SIGALRM works (the worker, or inline on the main thread)."""
+        if self._worker is None and threading.current_thread() is not threading.main_thread():
+            raise RuntimeError("off the main thread: construct LinePipeline(cpu_worker=True)")
+        return self._worker.submit(fn, *args).result() if self._worker else fn(*args)
+
+    def readable(self, latex):
+        """True if the checker can read a typed line (e.g. the problem statement)."""
+        return self._cpu(readable, latex.strip())
+
+    def typed_line(self, latex, history):
+        """A typed LaTeX line checked against history[-1] (checker + decide, no ASR); line 0 is given."""
+        latex = latex.strip()
+        if not history:
+            return self.given_line(latex)
+        d = self._cpu(typed_decide, latex, history[-1]["output"], len(history))
+        res = dict(d, latency_s=0.0, latency_parts={}, line_index=len(history), transcript=None,
+                   typed=True, suggestion=None, candidates=[], flagged=d["status"] in FLAGS)
+        res["spoken_explanation"] = spoken_explanation(res)
+        return res
 
     def given_line(self, latex):
         """A typed problem statement (line 0)."""

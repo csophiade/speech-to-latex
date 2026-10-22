@@ -51,6 +51,35 @@ def test_stale_resolution_click_is_a_no_op():
 
 
 def test_display_helpers():
-    assert app.plain(r"50 ( x^2 + 5x ) = 50 \times 50") == "50 ( x² + 5x ) = 50 × 50"
     assert app.pretty("x = -sqrt(85)/2") == "x = -√85/2"
-    assert "$" not in app.m("")
+
+
+def test_views_never_show_latency():
+    st = dict(app.fresh(), history=[line("given", typed=True), line("verified", latency_s=0.31,
+                                                                     latency_parts={"asr_s": 0.11})])
+    doc, status, *_ , dev = app.views(st)
+    assert "0.31" not in doc and "asr" not in doc and "0.31" not in status
+    assert "latency_s" not in dev and "latency_parts" not in dev
+
+
+def test_resolution_sets_status_and_clears_pending():
+    sug = {"latex": "x^2 + 5x - 50 = 0", "delta": 1.0, "words": ("fifteen", "fifty")}
+    st = dict(app.fresh(), history=[line("given", typed=True),
+                                    line("math_error", output="x^2 + 5x - 15 = 0", suggestion=sug)])
+    out = app.resolve(st, "A")[0]["history"][-1]
+    assert out["status"] == "corrected" and out["output"] == sug["latex"]
+    kept = app.resolve(st, "B")[0]["history"][-1]
+    assert kept["status"] == "math_error" and kept["resolved_from"] == "kept as said"
+
+
+def test_refused_actions_show_in_status_box_not_raise():
+    out = app.safe(app.add_line)(app.fresh(), None, True, False)
+    assert out[0]["history"] == [] and "p-error" in out[2] and "No recording yet" in out[2]
+    st = dict(app.fresh(), history=[line("given", typed=True), line("ask_back")])
+    out = app.safe(app.add_typed)(st, "x = 1", True, False)
+    assert len(out[0]["history"]) == 2 and "Choose A or B" in out[2]
+
+
+def test_reset_and_undo_clear_typed_text():
+    st = dict(app.fresh(), history=[line("given", typed=True)])
+    assert app.reset(st)[-1] == "" and app.undo(st)[-1] == ""
