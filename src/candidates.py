@@ -2,8 +2,10 @@
 
 import hashlib
 import json
+import os
 import random
 import re
+import threading
 import time
 from functools import lru_cache
 
@@ -12,6 +14,7 @@ from openai import OpenAI
 
 from src import config
 from src.eval import normalise
+from src.verbalise import flat_reading
 
 SYSTEM = (
     "You convert spoken mathematics into LaTeX. The input is a speech-recognition transcript "
@@ -62,8 +65,11 @@ def llm_call(messages, model=config.LLM_MODEL, json_mode=True):
     key = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
     path = config.LLM_CACHE_DIR / key[:2] / f"{key}.json"
     if path.exists():
-        hit = json.loads(path.read_text())
-        return hit["text"], hit["seconds"]
+        try:
+            hit = json.loads(path.read_text())
+            return hit["text"], hit["seconds"]
+        except (json.JSONDecodeError, KeyError):
+            pass   # partial file from an interrupted write: treat as a miss
     start = time.perf_counter()
     resp = _client().chat.completions.create(
         model=model, messages=messages, temperature=0,
@@ -71,7 +77,10 @@ def llm_call(messages, model=config.LLM_MODEL, json_mode=True):
     seconds = time.perf_counter() - start
     text = resp.choices[0].message.content or ""
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps({"payload": payload, "text": text, "seconds": seconds}, ensure_ascii=False))
+    # atomic: concurrent threads may request the same prompt
+    tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
+    tmp.write_text(json.dumps({"payload": payload, "text": text, "seconds": seconds}, ensure_ascii=False))
+    os.replace(tmp, path)
     return text, seconds
 
 
@@ -121,32 +130,46 @@ def to_latex(transcript, context_vars=None, m=config.M_CANDIDATES, model=config.
 
 
 SPOKEN_SYSTEM = (
-    "You say LaTeX maths out loud. Given one LaTeX expression, return ONLY a JSON object "
-    "{\"spoken\": [...]} with {k} different natural ways a person would read it aloud in English "
-    "(e.g. \"x squared plus one\", \"x to the power of two plus one\"). Plain words; digits are fine. "
-    "No LaTeX, no symbols like ^ or \\."
+    "You say LaTeX maths out loud for a listener who must reconstruct the exact expression. "
+    "Given one LaTeX expression, return ONLY a JSON object {\"explicit\": [\"...\", ...]} with "
+    "up to {k} readings that make every grouping audible, using phrases like \"the quantity\", "
+    "\"all squared\", \"all over\", \"end root\". Each reading must describe THIS expression "
+    "exactly and must NOT also fit a differently grouped expression. Plain words; digits are fine; "
+    "no LaTeX symbols.\n"
+    "Contrasting examples:\n"
+    "- (a+2)^2 -> \"the quantity a plus two, all squared\"\n"
+    "- a+2^2 -> \"a plus the square of two\"\n"
+    "- \\sqrt{7-t} -> \"the square root of the quantity seven minus t\"\n"
+    "- \\sqrt{7}-t -> \"the square root of seven, end root, minus t\"\n"
+    "- \\frac{1}{y+4} -> \"one over the quantity y plus four\"\n"
+    "- \\frac{1}{y}+4 -> \"one over y, plus four\"\n"
+    "If the expression has no hidden grouping, give natural readings instead."
 )
 
 
 def to_spoken_timed(latex, k=3, model=config.LLM_MODEL):
-    """(2-3 natural English verbalisations of a LaTeX string, seconds); [] on failure. Cached."""
-    examples = "\n".join(f"- {latex_}  ->  {spoken}" for spoken, latex_ in fewshot_pairs())
-    msgs = [{"role": "system", "content": SPOKEN_SYSTEM.replace("{k}", str(k))
-             + f"\n\nExamples of LaTeX and one way to say it:\n{examples}"},
+    """(verbalisations, seconds); the LLM part is cached and [] on failure.
+
+    Form 0 is the rule-based flat reading (src.verbalise), which is identical for
+    expressions differing only in grouping, so the audio cannot favour either one unless
+    the speaker marked the grouping; the LLM's explicit readings (the rest) capture that.
+    """
+    flat = flat_reading(latex)
+    msgs = [{"role": "system", "content": SPOKEN_SYSTEM.replace("{k}", str(k - 1))},
             {"role": "user", "content": latex}]
-    seconds = 0.0
-    for attempt in (msgs, msgs + [{"role": "user", "content": RETRY.replace("candidates", "spoken")}]):
+    seconds, explicit = 0.0, []
+    for attempt in (msgs, msgs + [{"role": "user", "content": RETRY.replace("candidates", "explicit")}]):
         text, s = llm_call(attempt, model)
         seconds += s
         try:
-            spoken = json.loads(text).get("spoken")
-        except (json.JSONDecodeError, AttributeError):
+            forms = json.loads(text)["explicit"]
+        except (json.JSONDecodeError, KeyError, TypeError):
             continue
-        if isinstance(spoken, list):
-            out = [x.strip() for x in spoken if isinstance(x, str) and x.strip()]
-            if out:
-                return list(dict.fromkeys(out))[:k], seconds
-    return [], seconds
+        if isinstance(forms, list):
+            explicit = [x.strip() for x in forms if isinstance(x, str) and x.strip()]
+            break
+    out = list(dict.fromkeys(([flat] if flat else []) + explicit))
+    return out[:k], seconds
 
 
 def to_spoken(latex, k=3, model=config.LLM_MODEL):

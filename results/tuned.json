@@ -1,0 +1,773 @@
+{
+  "dataset": "s2l_dev",
+  "n": 1086,
+  "selection": "min CER, tie: max SymEq",
+  "C": {
+    "system": "C",
+    "lam": 0.5,
+    "cer": 0.4194,
+    "symeq_on_parseable": 0.3764,
+    "nem": 0.2836
+  },
+  "D": {
+    "system": "D",
+    "lam": 1,
+    "gamma": 0.25,
+    "eps": 0.5,
+    "cer": 0.4149,
+    "symeq_on_parseable": 0.3856,
+    "nem": 0.2947
+  },
+  "grid": [
+    {
+      "system": "C",
+      "lam": 0.5,
+      "cer": 0.4194,
+      "symeq_on_parseable": 0.3764,
+      "nem": 0.2836
+    },
+    {
+      "system": "C",
+      "lam": 1,
+      "cer": 0.4208,
+      "symeq_on_parseable": 0.3754,
+      "nem": 0.2836
+    },
+    {
+      "system": "C",
+      "lam": 2,
+      "cer": 0.4211,
+      "symeq_on_parseable": 0.3744,
+      "nem": 0.2827
+    },
+    {
+      "system": "C",
+      "lam": 4,
+      "cer": 0.4211,
+      "symeq_on_parseable": 0.3744,
+      "nem": 0.2827
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.05,
+      "eps": 0.01,
+      "cer": 0.4285,
+      "symeq_on_parseable": 0.355,
+      "nem": 0.2661
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.05,
+      "eps": 0.05,
+      "cer": 0.4251,
+      "symeq_on_parseable": 0.3693,
+      "nem": 0.2799
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.05,
+      "eps": 0.1,
+      "cer": 0.4231,
+      "symeq_on_parseable": 0.3733,
+      "nem": 0.2818
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.05,
+      "eps": 0.25,
+      "cer": 0.4174,
+      "symeq_on_parseable": 0.3856,
+      "nem": 0.2928
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.05,
+      "eps": 0.5,
+      "cer": 0.4172,
+      "symeq_on_parseable": 0.3856,
+      "nem": 0.2956
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.1,
+      "eps": 0.01,
+      "cer": 0.4324,
+      "symeq_on_parseable": 0.3449,
+      "nem": 0.2587
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.1,
+      "eps": 0.05,
+      "cer": 0.4251,
+      "symeq_on_parseable": 0.3662,
+      "nem": 0.2753
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.1,
+      "eps": 0.1,
+      "cer": 0.4216,
+      "symeq_on_parseable": 0.3754,
+      "nem": 0.2855
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.1,
+      "eps": 0.25,
+      "cer": 0.417,
+      "symeq_on_parseable": 0.3856,
+      "nem": 0.2928
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.1,
+      "eps": 0.5,
+      "cer": 0.4163,
+      "symeq_on_parseable": 0.3866,
+      "nem": 0.2956
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.25,
+      "eps": 0.01,
+      "cer": 0.438,
+      "symeq_on_parseable": 0.3428,
+      "nem": 0.2587
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.25,
+      "eps": 0.05,
+      "cer": 0.4218,
+      "symeq_on_parseable": 0.3601,
+      "nem": 0.2744
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.25,
+      "eps": 0.1,
+      "cer": 0.4246,
+      "symeq_on_parseable": 0.3733,
+      "nem": 0.2836
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.25,
+      "eps": 0.25,
+      "cer": 0.4211,
+      "symeq_on_parseable": 0.3835,
+      "nem": 0.2956
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.25,
+      "eps": 0.5,
+      "cer": 0.4193,
+      "symeq_on_parseable": 0.3876,
+      "nem": 0.2974
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.5,
+      "eps": 0.01,
+      "cer": 0.4478,
+      "symeq_on_parseable": 0.3398,
+      "nem": 0.2597
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.5,
+      "eps": 0.05,
+      "cer": 0.4427,
+      "symeq_on_parseable": 0.3469,
+      "nem": 0.2652
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.5,
+      "eps": 0.1,
+      "cer": 0.4343,
+      "symeq_on_parseable": 0.3581,
+      "nem": 0.2744
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.5,
+      "eps": 0.25,
+      "cer": 0.4275,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2864
+    },
+    {
+      "system": "D",
+      "lam": 0.5,
+      "gamma": 0.5,
+      "eps": 0.5,
+      "cer": 0.4229,
+      "symeq_on_parseable": 0.3845,
+      "nem": 0.2983
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.05,
+      "eps": 0.01,
+      "cer": 0.4301,
+      "symeq_on_parseable": 0.354,
+      "nem": 0.267
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.05,
+      "eps": 0.05,
+      "cer": 0.4259,
+      "symeq_on_parseable": 0.3683,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.05,
+      "eps": 0.1,
+      "cer": 0.4236,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2827
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.05,
+      "eps": 0.25,
+      "cer": 0.4214,
+      "symeq_on_parseable": 0.3774,
+      "nem": 0.2864
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.05,
+      "eps": 0.5,
+      "cer": 0.4182,
+      "symeq_on_parseable": 0.3845,
+      "nem": 0.2937
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.1,
+      "eps": 0.01,
+      "cer": 0.4327,
+      "symeq_on_parseable": 0.3449,
+      "nem": 0.2597
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.1,
+      "eps": 0.05,
+      "cer": 0.4267,
+      "symeq_on_parseable": 0.3652,
+      "nem": 0.2753
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.1,
+      "eps": 0.1,
+      "cer": 0.4254,
+      "symeq_on_parseable": 0.3693,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.1,
+      "eps": 0.25,
+      "cer": 0.4218,
+      "symeq_on_parseable": 0.3784,
+      "nem": 0.2855
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.1,
+      "eps": 0.5,
+      "cer": 0.4179,
+      "symeq_on_parseable": 0.3856,
+      "nem": 0.2937
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.25,
+      "eps": 0.01,
+      "cer": 0.4328,
+      "symeq_on_parseable": 0.3408,
+      "nem": 0.256
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.25,
+      "eps": 0.05,
+      "cer": 0.4241,
+      "symeq_on_parseable": 0.351,
+      "nem": 0.2652
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.25,
+      "eps": 0.1,
+      "cer": 0.4234,
+      "symeq_on_parseable": 0.3642,
+      "nem": 0.2744
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.25,
+      "eps": 0.25,
+      "cer": 0.4186,
+      "symeq_on_parseable": 0.3795,
+      "nem": 0.2891
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.25,
+      "eps": 0.5,
+      "cer": 0.4149,
+      "symeq_on_parseable": 0.3856,
+      "nem": 0.2947
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.5,
+      "eps": 0.01,
+      "cer": 0.4417,
+      "symeq_on_parseable": 0.3398,
+      "nem": 0.2578
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.5,
+      "eps": 0.05,
+      "cer": 0.4361,
+      "symeq_on_parseable": 0.3489,
+      "nem": 0.2643
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.5,
+      "eps": 0.1,
+      "cer": 0.4266,
+      "symeq_on_parseable": 0.3611,
+      "nem": 0.2753
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.5,
+      "eps": 0.25,
+      "cer": 0.4214,
+      "symeq_on_parseable": 0.3764,
+      "nem": 0.2873
+    },
+    {
+      "system": "D",
+      "lam": 1,
+      "gamma": 0.5,
+      "eps": 0.5,
+      "cer": 0.4196,
+      "symeq_on_parseable": 0.3866,
+      "nem": 0.2983
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.05,
+      "eps": 0.01,
+      "cer": 0.431,
+      "symeq_on_parseable": 0.352,
+      "nem": 0.2652
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.05,
+      "eps": 0.05,
+      "cer": 0.4268,
+      "symeq_on_parseable": 0.3662,
+      "nem": 0.279
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.05,
+      "eps": 0.1,
+      "cer": 0.4246,
+      "symeq_on_parseable": 0.3703,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.05,
+      "eps": 0.25,
+      "cer": 0.4235,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.05,
+      "eps": 0.5,
+      "cer": 0.4228,
+      "symeq_on_parseable": 0.3754,
+      "nem": 0.2845
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.1,
+      "eps": 0.01,
+      "cer": 0.4343,
+      "symeq_on_parseable": 0.3418,
+      "nem": 0.2578
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.1,
+      "eps": 0.05,
+      "cer": 0.4282,
+      "symeq_on_parseable": 0.3622,
+      "nem": 0.2735
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.1,
+      "eps": 0.1,
+      "cer": 0.4269,
+      "symeq_on_parseable": 0.3662,
+      "nem": 0.279
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.1,
+      "eps": 0.25,
+      "cer": 0.4236,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.1,
+      "eps": 0.5,
+      "cer": 0.4236,
+      "symeq_on_parseable": 0.3754,
+      "nem": 0.2836
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.25,
+      "eps": 0.01,
+      "cer": 0.4374,
+      "symeq_on_parseable": 0.3357,
+      "nem": 0.2532
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.25,
+      "eps": 0.05,
+      "cer": 0.429,
+      "symeq_on_parseable": 0.3459,
+      "nem": 0.2624
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.25,
+      "eps": 0.1,
+      "cer": 0.4287,
+      "symeq_on_parseable": 0.3581,
+      "nem": 0.2707
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.25,
+      "eps": 0.25,
+      "cer": 0.4262,
+      "symeq_on_parseable": 0.3683,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.25,
+      "eps": 0.5,
+      "cer": 0.4219,
+      "symeq_on_parseable": 0.3754,
+      "nem": 0.2855
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.5,
+      "eps": 0.01,
+      "cer": 0.4331,
+      "symeq_on_parseable": 0.3388,
+      "nem": 0.2551
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.5,
+      "eps": 0.05,
+      "cer": 0.4302,
+      "symeq_on_parseable": 0.3449,
+      "nem": 0.2597
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.5,
+      "eps": 0.1,
+      "cer": 0.4257,
+      "symeq_on_parseable": 0.352,
+      "nem": 0.2661
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.5,
+      "eps": 0.25,
+      "cer": 0.4212,
+      "symeq_on_parseable": 0.3683,
+      "nem": 0.2781
+    },
+    {
+      "system": "D",
+      "lam": 2,
+      "gamma": 0.5,
+      "eps": 0.5,
+      "cer": 0.4196,
+      "symeq_on_parseable": 0.3815,
+      "nem": 0.291
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.05,
+      "eps": 0.01,
+      "cer": 0.431,
+      "symeq_on_parseable": 0.352,
+      "nem": 0.2652
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.05,
+      "eps": 0.05,
+      "cer": 0.4268,
+      "symeq_on_parseable": 0.3662,
+      "nem": 0.279
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.05,
+      "eps": 0.1,
+      "cer": 0.4246,
+      "symeq_on_parseable": 0.3703,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.05,
+      "eps": 0.25,
+      "cer": 0.4235,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.05,
+      "eps": 0.5,
+      "cer": 0.4235,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.1,
+      "eps": 0.01,
+      "cer": 0.4343,
+      "symeq_on_parseable": 0.3418,
+      "nem": 0.2578
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.1,
+      "eps": 0.05,
+      "cer": 0.4282,
+      "symeq_on_parseable": 0.3622,
+      "nem": 0.2735
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.1,
+      "eps": 0.1,
+      "cer": 0.4269,
+      "symeq_on_parseable": 0.3662,
+      "nem": 0.279
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.1,
+      "eps": 0.25,
+      "cer": 0.4236,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.1,
+      "eps": 0.5,
+      "cer": 0.4234,
+      "symeq_on_parseable": 0.3723,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.25,
+      "eps": 0.01,
+      "cer": 0.4374,
+      "symeq_on_parseable": 0.3357,
+      "nem": 0.2532
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.25,
+      "eps": 0.05,
+      "cer": 0.429,
+      "symeq_on_parseable": 0.3459,
+      "nem": 0.2624
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.25,
+      "eps": 0.1,
+      "cer": 0.4287,
+      "symeq_on_parseable": 0.3581,
+      "nem": 0.2707
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.25,
+      "eps": 0.25,
+      "cer": 0.4255,
+      "symeq_on_parseable": 0.3683,
+      "nem": 0.2808
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.25,
+      "eps": 0.5,
+      "cer": 0.4227,
+      "symeq_on_parseable": 0.3713,
+      "nem": 0.2818
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.5,
+      "eps": 0.01,
+      "cer": 0.438,
+      "symeq_on_parseable": 0.3337,
+      "nem": 0.2523
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.5,
+      "eps": 0.05,
+      "cer": 0.4357,
+      "symeq_on_parseable": 0.3398,
+      "nem": 0.2569
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.5,
+      "eps": 0.1,
+      "cer": 0.4302,
+      "symeq_on_parseable": 0.3469,
+      "nem": 0.2634
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.5,
+      "eps": 0.25,
+      "cer": 0.4281,
+      "symeq_on_parseable": 0.3601,
+      "nem": 0.2726
+    },
+    {
+      "system": "D",
+      "lam": 4,
+      "gamma": 0.5,
+      "eps": 0.5,
+      "cer": 0.4266,
+      "symeq_on_parseable": 0.3703,
+      "nem": 0.2827
+    }
+  ],
+  "llm": "gpt-4.1-mini",
+  "seed": 42
+}
