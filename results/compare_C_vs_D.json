@@ -1,0 +1,446 @@
+[
+  {
+    "dataset": "s2l_test500",
+    "n": 500,
+    "cer_C": 0.3592,
+    "cer_D": 0.3724,
+    "cer_diff_b_minus_a": 0.0132,
+    "ci95": [
+      -0.0069,
+      0.0332
+    ],
+    "n_bootstrap": 1000,
+    "seed": 42,
+    "n_differ": 101,
+    "exact_only_D": [
+      {
+        "file_name": "audio/365_spk_39.wav",
+        "is_tts": 1,
+        "transcript": "6 text take away, 3y equals 12.",
+        "reference": "6x - 3y = 12",
+        "C": "6 - 3y = 12",
+        "D": "6x - 3y = 12"
+      },
+      {
+        "file_name": "audio/1390_spk_40.wav",
+        "is_tts": 1,
+        "transcript": "See sub 2 open parenthesis e close parenthesis equals 2.",
+        "reference": "C_ { 2 } ( E ) = 2",
+        "C": "S_{2}(e)=2",
+        "D": "C_2(E)=2"
+      },
+      {
+        "file_name": "audio/2244_spk_17.wav",
+        "is_tts": 0,
+        "transcript": "f equals sine 3x.",
+        "reference": "f(x) = \\sin 3x",
+        "C": "f=\\sin 3x",
+        "D": "f(x)=\\sin 3x"
+      },
+      {
+        "file_name": "audio/2244_spk_39.wav",
+        "is_tts": 1,
+        "transcript": "f of x equals sending 3x now.",
+        "reference": "f(x) = \\sin 3x",
+        "C": "f(x)=\text{sin}(3x)",
+        "D": "f(x)=\\sin 3x"
+      },
+      {
+        "file_name": "audio/2886_spk_12.wav",
+        "is_tts": 0,
+        "transcript": "Gamma sub one comma two equals two p, rho, t sub one comma two squared.",
+        "reference": "\\Gamma_ { 1,2 } =2\\pi\\rho t_ { 1,2 } ^2",
+        "C": "\\Gamma_{1,2} = 2 p \\rho t_{1,2}^2",
+        "D": "\\Gamma_{1,2} = 2 \\pi \\rho t_{1,2}^2"
+      },
+      {
+        "file_name": "audio/3293_spk_40.wav",
+        "is_tts": 1,
+        "transcript": "Kappa equals 1, 2.",
+        "reference": "\\kappa =1,2",
+        "C": "\\kappa = 1.2",
+        "D": "\\kappa = 1, 2"
+      },
+      {
+        "file_name": "audio/6076_spk_12.wav",
+        "is_tts": 0,
+        "transcript": "The Bernoulli's equation equals pressure plus one-half density velocity squared plus density gravity height equals constant",
+        "reference": "P + \\frac{1}{2} \\rho v^2 + \\rho g h = \\text{constant}",
+        "C": "P + \\frac{1}{2} \\rho v^2 + \\rho g h = C",
+        "D": "P + \\frac{1}{2} \\rho v^2 + \\rho g h = \\text{constant}"
+      },
+      {
+        "file_name": "audio/6076_spk_9.wav",
+        "is_tts": 0,
+        "transcript": "the Bernoulli's equation equals pressure plus one half density velocity squared plus density gravity height equals constant",
+        "reference": "P + \\frac{1}{2} \\rho v^2 + \\rho g h = \\text{constant}",
+        "C": "P + \\frac{1}{2} \\rho v^2 + \\rho g h = C",
+        "D": "P + \\frac{1}{2} \\rho v^2 + \\rho g h = \\text{constant}"
+      },
+      {
+        "file_name": "audio/6263_spk_14.wav",
+        "is_tts": 0,
+        "transcript": "The density of states for a 3D3 particle is Ge equals 2m over h-bar squared to the 3.5 times squared E.",
+        "reference": "g(E) = \\left(\\frac{2 m}{\\hbar^2}\\right)^{3/2} \\sqrt{E}",
+        "C": "g(E) = \\left( \\frac{2m}{\\hbar^2} \\right)^{3/2} E^{1/2}",
+        "D": "g(E) = \\left( \\frac{2m}{\\hbar^2} \\right)^{3/2} \\sqrt{E}"
+      },
+      {
+        "file_name": "audio/8549_spk_17.wav",
+        "is_tts": 0,
+        "transcript": "The bar of zero equals alpha.",
+        "reference": "\\bar { v } ( 0 ) = \\alpha",
+        "C": "\\overline{0} = \\alpha",
+        "D": "\\bar{v}(0)=\\alpha"
+      },
+      {
+        "file_name": "audio/8818_spk_9.wav",
+        "is_tts": 0,
+        "transcript": "WSUP2",
+        "reference": "W_2",
+        "C": "W^{2}",
+        "D": "W_2"
+      },
+      {
+        "file_name": "audio/9086_spk_4.wav",
+        "is_tts": 0,
+        "transcript": "x squared plus 2i x minus 4 equals 0. Solving for x gives x equals i plus or minus square root of 5.",
+        "reference": "x^2 + 2ix - 4 = 0 \\quad \\Rightarrow \\quad x = i \\pm \\sqrt{5}",
+        "C": "x^2 + 2ix - 4 = 0",
+        "D": "x^2 + 2ix - 4 = 0 \\quad \\Rightarrow \\quad x = i \\pm \\sqrt{5}"
+      }
+    ],
+    "exact_only_C": [
+      {
+        "file_name": "audio/517_spk_40.wav",
+        "is_tts": 1,
+        "transcript": "A is equal to 2xy.",
+        "reference": "A = 2xy",
+        "C": "A=2xy",
+        "D": "i=2xy"
+      },
+      {
+        "file_name": "audio/1957_spk_39.wav",
+        "is_tts": 1,
+        "transcript": "Epsilon sub J equals zero that I have a bandage in here.",
+        "reference": "\\varepsilon_j=0",
+        "C": "\\varepsilon_j=0",
+        "D": "\\varepsilon_j=0 \\quad \\text{that I have a bandage in the } \\mathbb{R}"
+      },
+      {
+        "file_name": "audio/3050_spk_13.wav",
+        "is_tts": 0,
+        "transcript": "head lambda sub n of v equals lambda of v plus little o sub p of one",
+        "reference": "\\hat { \\lambda } _n ( v ) = \\lambda ( v ) + o_p ( 1 )",
+        "C": "\\hat{\\lambda}_n (v) = \\lambda (v) + o_p (1)",
+        "D": "\\hat{\\lambda}_n (v) = \\lambda (v) + o_v (1)"
+      },
+      {
+        "file_name": "audio/3922_spk_17.wav",
+        "is_tts": 0,
+        "transcript": "m equals zero comma dot dot dot comma capital N",
+        "reference": "m=0 , \\dots , N",
+        "C": "m=0,\\ldots,N",
+        "D": "m=0,\\ldots\\,\\text{capital }N"
+      },
+      {
+        "file_name": "audio/5671_spk_40.wav",
+        "is_tts": 1,
+        "transcript": "Slope of 7 divided by 16.",
+        "reference": "\\frac{7}{16}",
+        "C": "\\frac{7}{16}",
+        "D": "7 \\div 16"
+      },
+      {
+        "file_name": "audio/6051_spk_5.wav",
+        "is_tts": 0,
+        "transcript": "The area of a triangle is one half times the base times the height.",
+        "reference": "A = \\frac{1}{2}bh",
+        "C": "A = \\frac{1}{2} b h",
+        "D": "\\text{Area} = \\frac{1}{2} \\times \\text{base} \\times \\text{height}"
+      },
+      {
+        "file_name": "audio/7698_spk_40.wav",
+        "is_tts": 1,
+        "transcript": "The sample variance equals the sum of x of i minus the sample mean squared divided by n minus 1.",
+        "reference": "s^2 = \\frac{\\sum_{i=1}^{n} (x_i - \\bar{x})^2}{n-1}",
+        "C": "s^2 = \\frac{\\sum_{i=1}^n (x_i - \\bar{x})^2}{n - 1}",
+        "D": "s^2 = \\frac{\\sum (x_i - \\bar{x})^2}{n - 1}"
+      },
+      {
+        "file_name": "audio/8456_spk_7.wav",
+        "is_tts": 0,
+        "transcript": "u of xi sub n.",
+        "reference": "u ( \\xi_n )",
+        "C": "u(\\xi_n)",
+        "D": "u(\\psi_n)"
+      },
+      {
+        "file_name": "audio/10104_spk_40.wav",
+        "is_tts": 1,
+        "transcript": "The divergence of a second-order tensor equals partial t x x with respect to x plus partial t y with respect to y.",
+        "reference": "\\nabla \\cdot \\mathbf{T} = \\frac{\\partial T_{xx}}{\\partial x} + \\frac{\\partial T_{yy}}{\\partial y}",
+        "C": "\\nabla \\cdot \\mathbf{T} = \\frac{\\partial T_{xx}}{\\partial x} + \\frac{\\partial T_{yy}}{\\partial y}",
+        "D": "\\operatorname{div} T = \\frac{\\partial T_{xx}}{\\partial x} + \\frac{\\partial T_{yx}}{\\partial y}"
+      }
+    ]
+  },
+  {
+    "dataset": "mathspeech",
+    "n": 1101,
+    "cer_C": 0.3441,
+    "cer_D": 0.3237,
+    "cer_diff_b_minus_a": -0.0204,
+    "ci95": [
+      -0.0461,
+      -0.0046
+    ],
+    "n_bootstrap": 1000,
+    "seed": 42,
+    "n_differ": 88,
+    "exact_only_D": [
+      {
+        "file_name": "audio/0039.mp3",
+        "is_tts": null,
+        "transcript": "Cosine x cosine x is cosine squared x.",
+        "reference": "$\\cos x \\cos x = \\cos^{2}x$",
+        "C": "\\cos x \\cdot \\cos x = \\cos^2 x",
+        "D": "\\cos x \\cos x = \\cos^2 x"
+      },
+      {
+        "file_name": "audio/0041.mp3",
+        "is_tts": null,
+        "transcript": "d dy dx times dx dw times dw d theta.",
+        "reference": "$ \\frac{dy}{dx} \\times \\frac{dx}{dw} \\times \\frac{dw}{d\\theta} $",
+        "C": "\\frac{d}{dy} \\frac{dx}{dx} \\frac{dw}{d\\theta} \\frac{dw}{d\\theta}",
+        "D": "\\frac{dy}{dx} \\times \\frac{dx}{dw} \\times \\frac{dw}{d\\theta}"
+      },
+      {
+        "file_name": "audio/0095.mp3",
+        "is_tts": null,
+        "transcript": "And x to the n minus 1.",
+        "reference": "$nx^{n-1}$",
+        "C": "x^{n-1}",
+        "D": "n x^{n-1}"
+      },
+      {
+        "file_name": "audio/0144.mp3",
+        "is_tts": null,
+        "transcript": "I want to have r squared omega squared.",
+        "reference": "$\\frac{1}{2}mr^{2}\\omega^{2}$",
+        "C": "r^2 \\omega^2",
+        "D": "\\frac{1}{2} m r^{2} \\omega^{2}"
+      },
+      {
+        "file_name": "audio/0162.mp3",
+        "is_tts": null,
+        "transcript": "minus theta cubed over six.",
+        "reference": "$\\theta-\\frac{\\theta^{3}}{6}$",
+        "C": "-\\frac{\\theta^3}{6}",
+        "D": "\\theta - \\frac{\\theta^3}{6}"
+      },
+      {
+        "file_name": "audio/0206.mp3",
+        "is_tts": null,
+        "transcript": "free y plus z equals zero.",
+        "reference": "$x+3y+z=0$",
+        "C": "f(y) + z = 0",
+        "D": "x + 3y + z = 0"
+      },
+      {
+        "file_name": "audio/0212.mp3",
+        "is_tts": null,
+        "transcript": "d by dt of r dot r is zero.",
+        "reference": "$\\displaystyle \\frac{d}{dt}(\\mathbf{r}\\cdot\\mathbf{r})=0$",
+        "C": "\\frac{d}{dt} ( r \\cdot r ) = 0",
+        "D": "\\frac{d}{dt} ( \\mathbf{r} \\cdot \\mathbf{r} ) = 0"
+      },
+      {
+        "file_name": "audio/0400.mp3",
+        "is_tts": null,
+        "transcript": "f of x equals g of x plus a constant.",
+        "reference": "$f(x)=g(x)+\\text{constant}$",
+        "C": "f(x) = g(x) + c",
+        "D": "f(x) = g(x) + \\text{constant}"
+      },
+      {
+        "file_name": "audio/0402.mp3",
+        "is_tts": null,
+        "transcript": "It's 124 x to the fourth plus 2 to the power 6 plus c.",
+        "reference": "$\\frac{1}{24}x^{4}+2^{6}+c$",
+        "C": "124 x^4 + 2^6 + c",
+        "D": "\\frac{1}{24} x^{4} + 2^{6} + c"
+      },
+      {
+        "file_name": "audio/0438.mp3",
+        "is_tts": null,
+        "transcript": "Minus the integral from b to a of f dx.",
+        "reference": "$\\displaystyle -\\int_{b}^{a}f(x)dx$",
+        "C": "-\\int_a^b f \\, dx",
+        "D": "-\\int_b^a f(x)\\,dx"
+      },
+      {
+        "file_name": "audio/0544.mp3",
+        "is_tts": null,
+        "transcript": "The integral of dx over x squared times the square root of.",
+        "reference": "$\\int\\frac{dx}{x^{2}\\sqrt{1+x^{2}}}$",
+        "C": "\\int \\frac{dx}{x^2 \\sqrt{x}}",
+        "D": "\\int \\frac{dx}{x^2 \\sqrt{1+x^2}}"
+      },
+      {
+        "file_name": "audio/0567.mp3",
+        "is_tts": null,
+        "transcript": "b over squared.",
+        "reference": "$\\frac{b}{(x-1)^{2}}$",
+        "C": "\\frac{b}{squared}",
+        "D": "\\frac{b}{(x-1)^2}"
+      },
+      {
+        "file_name": "audio/0610.mp3",
+        "is_tts": null,
+        "transcript": "The integral from 0 to a of square root of dx.",
+        "reference": "$\\int_{0}^{a}\\sqrt{1+4x^{2}}dx$",
+        "C": "\\int_0^a \\sqrt{x} \\, dx",
+        "D": "\\int_0^a \\sqrt{1+4x^2} \\, dx"
+      },
+      {
+        "file_name": "audio/0662.mp3",
+        "is_tts": null,
+        "transcript": "A half x minus a half tan inverse x plus x.",
+        "reference": "$\\frac{1}{2}x-\\frac{1}{2}\\tan^{-1}x$",
+        "C": "\\frac{1}{2}x - \\frac{1}{2} \\tan^{-1} x + x",
+        "D": "\\frac{1}{2}x - \\frac{1}{2} \\tan^{-1} x"
+      },
+      {
+        "file_name": "audio/0836.mp3",
+        "is_tts": null,
+        "transcript": "negative four plus lambda squared plus lambda squared plus",
+        "reference": "$-4+\\lambda^{2}$",
+        "C": "-4 + \\lambda^2 + \\lambda^2",
+        "D": "-4 + \\lambda^2"
+      },
+      {
+        "file_name": "audio/0866.mp3",
+        "is_tts": null,
+        "transcript": "square root of will be cosine theta.",
+        "reference": "$\\sqrt{1-x^{2}}=\\cos\\theta$",
+        "C": "\\sqrt{\\cos \\theta}",
+        "D": "\\sqrt{1 - x^2} = \\cos \\theta"
+      },
+      {
+        "file_name": "audio/0905.mp3",
+        "is_tts": null,
+        "transcript": "integral of x dx y dy.",
+        "reference": "$\\int x\\,dx+y\\,dy$",
+        "C": "\\int x \\, dx \\, y \\, dy",
+        "D": "\\int x \\, dx + y \\, dy"
+      },
+      {
+        "file_name": "audio/0915.mp3",
+        "is_tts": null,
+        "transcript": "squared plus 4x squared.",
+        "reference": "$3y^{2}+4x^{2}$",
+        "C": "x^2 + 4x^2",
+        "D": "3y^2 + 4x^2"
+      },
+      {
+        "file_name": "audio/0940.mp3",
+        "is_tts": null,
+        "transcript": "squared plus z squared is less than one.",
+        "reference": "$x^{2}+y^{2}+z^{2}<1$",
+        "C": "x^2 + z^2 < 1",
+        "D": "x^2 + y^2 + z^2 < 1"
+      },
+      {
+        "file_name": "audio/1044.mp3",
+        "is_tts": null,
+        "transcript": "x dot of 0 equals to 0.",
+        "reference": "$\\dot{x}(0)={0}$",
+        "C": "x(0)=0",
+        "D": "\\dot{x}(0)=0"
+      },
+      {
+        "file_name": "audio/1053.mp3",
+        "is_tts": null,
+        "transcript": "Exponential i omega t.",
+        "reference": "$\\exp(i\\omega t)$",
+        "C": "e^{i \\omega t}",
+        "D": "\\exp(i \\omega t)"
+      },
+      {
+        "file_name": "audio/1069.mp3",
+        "is_tts": null,
+        "transcript": "divided by one minus three i.",
+        "reference": "$\\frac{2+i}{1-3i}$",
+        "C": "\\frac{1}{1-3i}",
+        "D": "\\frac{2+i}{1-3i}"
+      }
+    ],
+    "exact_only_C": [
+      {
+        "file_name": "audio/0019.mp3",
+        "is_tts": null,
+        "transcript": "e to the minus b squared times e to the minus x squared.",
+        "reference": "$e^{-b^2} e^{-x^2}$",
+        "C": "e^{-b^2} e^{-x^2}",
+        "D": "e^{-v^2} e^{-x^2}"
+      },
+      {
+        "file_name": "audio/0142.mp3",
+        "is_tts": null,
+        "transcript": "going r to the 4 over 4.",
+        "reference": " $\\frac{r^4}{4}$",
+        "C": "\\frac{r^4}{4}",
+        "D": "\\frac{r}{4} / 4"
+      },
+      {
+        "file_name": "audio/0328.mp3",
+        "is_tts": null,
+        "transcript": "x is equal to 2 to the one-third v to the one-third.",
+        "reference": "$x=2^{\\frac{1}{3}}v^{\\frac{1}{3}}$",
+        "C": "x=2^{\\frac{1}{3}} v^{\\frac{1}{3}}",
+        "D": "x=2^{1/3} v^{1/3}"
+      },
+      {
+        "file_name": "audio/0599.mp3",
+        "is_tts": null,
+        "transcript": "The integral from a to b of the square root of 1 plus dy dx squared dx.",
+        "reference": "$\\int_{a}^{b}\\sqrt{1 +(\\frac{dy}{dx})^{2}}dx$",
+        "C": "\\int_a^b \\sqrt{1 + \\left(\\frac{dy}{dx}\\right)^2} \\, dx",
+        "D": "\\int_a^b \\sqrt{x^2} \\, dx"
+      },
+      {
+        "file_name": "audio/0818.mp3",
+        "is_tts": null,
+        "transcript": "a1x plus a2y plus a phase z equals c.",
+        "reference": "$a_1x+a_2y+a_3z=c$",
+        "C": "a_1 x + a_2 y + a_3 z = c",
+        "D": "a_1 x + a_2 y + a \\phi e = c"
+      },
+      {
+        "file_name": "audio/0845.mp3",
+        "is_tts": null,
+        "transcript": "d z equals minus one over six times four dx plus dy.",
+        "reference": "$dz=-\\frac{1}{6}(4dx+dy)$",
+        "C": "dz = -\\frac{1}{6} (4 \\, dx + dy)",
+        "D": "dx = -\\frac{1}{6} \\times 4 \\, dx + dy"
+      },
+      {
+        "file_name": "audio/0876.mp3",
+        "is_tts": null,
+        "transcript": "pi a to the four over two.",
+        "reference": "$\\frac{\\pi a^{4}}{2}$",
+        "C": "\\frac{\\pi a^4}{2}",
+        "D": "\\frac{\\frac{\\pi 8}{4}}{2}"
+      },
+      {
+        "file_name": "audio/1094.mp3",
+        "is_tts": null,
+        "transcript": "So this is at least one half plus 1 over 2n.",
+        "reference": "$\\frac{1}{2}+\\frac{1}{2n}$",
+        "C": "\\frac{1}{2} + \\frac{1}{2n}",
+        "D": "\\text{at least } \\frac{1}{2} + \\frac{1}{2n}"
+      }
+    ]
+  }
+]

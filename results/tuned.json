@@ -769,5 +769,7 @@
     }
   ],
   "llm": "gpt-4.1-mini",
-  "seed": 42
+  "seed": 42,
+  "frozen": true,
+  "frozen_note": "Phase 2 final (C: lam=0.5; D: lam=1, gamma=0.25, eps=0.5). Do not retune; later phases reuse these values."
 }

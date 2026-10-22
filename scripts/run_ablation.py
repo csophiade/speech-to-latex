@@ -124,29 +124,42 @@ def score(preds):
 
 
 def plot(rows, path):
+    """Grouped bars: CER and SymEq on the parseable subset, with the SymEq coverage in the caption."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     datasets = list(dict.fromkeys(r["dataset"] for r in rows))
-    symeq_key = "symeq_on_parseable" if all("symeq_on_parseable" in r["metrics"] for r in rows) else "symeq"
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    metric = {(r["system"], r["dataset"]): r["metrics"] for r in rows}
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.6))
     width = 0.8 / len(SYSTEMS)
     for ax, key, title in [(axes[0], "cer", "CER (lower is better)"),
-                           (axes[1], symeq_key, f"{symeq_key} (higher is better)")]:
+                           (axes[1], "symeq_on_parseable", "SymEq on parseable subset (higher is better)")]:
         for k, system in enumerate(SYSTEMS):
-            vals = [next((r["metrics"][key] for r in rows if r["system"] == system and r["dataset"] == d), 0)
-                    for d in datasets]
+            vals = [metric[(system, d)][key] for d in datasets]
             xs = [i + (k - (len(SYSTEMS) - 1) / 2) * width for i in range(len(datasets))]
             ax.bar(xs, vals, width, label=system)
             for x, v in zip(xs, vals):
-                ax.text(x, v, f"{v:.2f}", ha="center", va="bottom", fontsize=7)
-        ns = {d: next(r["n"] for r in rows if r["dataset"] == d) for d in datasets}
+                ax.text(x, v, f"{v:.3f}", ha="center", va="bottom", fontsize=7)
+        ns = {d: metric[(SYSTEMS[0], d)]["n"] for d in datasets}
         ax.set_xticks(range(len(datasets)), [f"{d}\n(n={ns[d]})" for d in datasets])
-        ax.set_title(title)
-    axes[0].legend(title="System")
-    fig.tight_layout()
+        ax.set_title(title, fontsize=10)
+        ax.margins(y=0.12)
+    axes[1].legend(title="System", loc="upper left", fontsize=8)
+    coverage = ", ".join(f"{d} {metric[(SYSTEMS[0], d)]['symeq_coverage']:.2%}" for d in datasets)
+    fig.text(0.5, 0.01, "SymEq is computed only on clips whose reference LaTeX parses with SymPy "
+             f"(coverage: {coverage}); an unparseable prediction counts as wrong. CER uses all clips.",
+             ha="center", fontsize=8, wrap=True)
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path, dpi=150)
+
+
+def latest_ablation_rows(datasets):
+    """Most recent logged ablation row per (system, dataset), current pool version only."""
+    rows = [r for r in json.loads(config.RESULTS_JSON.read_text())
+            if r.get("ablation") and r.get("pool_version") == "v2" and r["dataset"] in datasets]
+    latest = {(r["system"], r["dataset"]): r for r in rows}
+    return list(latest.values())
 
 
 def main():
@@ -154,7 +167,11 @@ def main():
     ap.add_argument("--datasets", nargs="+", default=["s2l_test500", "mathspeech"])
     ap.add_argument("--llm", default=config.LLM_MODEL)
     ap.add_argument("--limit", type=int, help="debug: first N clips, nothing logged")
+    ap.add_argument("--plot-only", action="store_true", help="redraw the figure from results.json")
     args = ap.parse_args()
+    if args.plot_only:
+        plot(latest_ablation_rows(args.datasets), config.FIGURES_DIR / "ablation_bar.png")
+        return
 
     tuned = json.loads(TUNED.read_text())
     params = {"A": {}, "B": {}, "C": {"lam": tuned["C"]["lam"]},

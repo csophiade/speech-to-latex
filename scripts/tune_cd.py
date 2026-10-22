@@ -21,6 +21,8 @@ EPSILONS = [0.01, 0.05, 0.1, 0.25, 0.5]
 
 
 def main():
+    if json.loads(TUNED.read_text()).get("frozen") and "--force" not in sys.argv:
+        sys.exit(f"{TUNED} is frozen (Phase 2 final); pass --force to retune anyway")
     rows, pools = ensure_pools("s2l_dev")
     grid = []
     for system, lam, gamma, eps in [("C", lam, None, None) for lam in LAMBDAS] + \
