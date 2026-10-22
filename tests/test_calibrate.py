@@ -109,3 +109,23 @@ def test_metrics_accepts_real_run_rows():
     rows = [{"source": "rec", "label": "error", "status": "verified", "hat_status": "valid",
              "hat_eq_said": False, "out_eq_said": False}]
     assert metrics(rows)["scr"] == 1.0
+
+
+def test_bound_pvalues_beta_binomial_less_extreme_than_binomial():
+    from src.calibrate import bound_pvalues
+    # phase 4 numbers: k=16, n=327; homophone v1 11/100
+    p = bound_pvalues(11, 100, 16, 327)
+    assert abs(p["bound"] - 16 / 328) < 1e-3
+    assert abs(p["binomial"] - 0.00966) < 2e-4
+    assert abs(p["beta_binomial"] - 0.0218) < 5e-4
+    assert p["beta_binomial"] > p["binomial"]          # calibration randomness widens the null
+    assert bound_pvalues(0, 100, 16, 327)["beta_binomial"] == 1.0
+
+
+def test_cluster_calibration_collapses_pairs():
+    from src.calibrate import cluster_calibration
+    ms = [0.1, 0.2, 0.3, 0.4, math.inf, math.inf]
+    cl = ["a", "a", "b", "b", "c", "c"]
+    out = cluster_calibration(ms, cl, alpha=0.5)
+    assert out["n_items"] == 6 and out["n_clusters"] == 3
+    assert out["min"] == (0.3, 2, 3) and out["max"] == (0.4, 2, 3)

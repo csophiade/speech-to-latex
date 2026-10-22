@@ -37,6 +37,16 @@ NOTES = [
 ]
 
 
+def all_errors():
+    """id -> error over the Phase 3 derivations and the homophone stress set (if generated)."""
+    out = {}
+    for name in ("derivations.json", "homophone.json"):
+        f = DATA_DIR / "derivations" / name
+        if f.exists():
+            out |= {it["id"]: it["error"] for it in json.loads(f.read_text())}
+    return out
+
+
 def score(r, errors):
     audio, _ = load_audio(ROOT / r["wav"])
     hyp = transcribe_nbest(audio)[0][0]
@@ -54,7 +64,7 @@ def main():
     ap.add_argument("--scan-all", action="store_true", help="also transcribe every clip, add per-voice stats")
     args = ap.parse_args()
     rows = [json.loads(line) for line in MANIFEST.read_text().splitlines() if line.strip()]
-    errors = {it["id"]: it["error"] for it in json.loads((DATA_DIR / "derivations" / "derivations.json").read_text())}
+    errors = all_errors()
     sample = random.Random(SEED).sample(rows, min(args.n, len(rows)))
     out = [score(r, errors) for r in sample]
     n_bad = sum(o["garbage"] for o in out)

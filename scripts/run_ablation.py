@@ -7,6 +7,10 @@ Pools (n-best transcripts -> LaTeX candidates -> spoken forms -> raw acoustic sc
 cached per dataset under data/cache/pools/, with the wall-clock time of every original call,
 so selection and metrics can be recomputed for free. Appends to results/results.json and
 writes results/figures/ablation_bar.png.
+
+Phase 2 numbers are PRE-AUGMENTATION and frozen: pools here are built with augment=False
+(confusable-number augmentation, src/augment.py, belongs to the Phase 4 derivation system),
+so the cached pools, tuned.json and the single-equation ablation stay as they were.
 """
 
 import argparse
@@ -53,7 +57,7 @@ def ensure_pools(dataset, llm=config.LLM_MODEL, limit=None, clip_workers=6):
         from src.audio import load_audio
         # LLM stage (network-bound): many clips at once
         with ThreadPoolExecutor(clip_workers) as ex:
-            built = list(tqdm(ex.map(lambda r: build_pool(asr[r["file_name"]]["nbest"], llm), todo),
+            built = list(tqdm(ex.map(lambda r: build_pool(asr[r["file_name"]]["nbest"], llm, augment=False), todo),
                               total=len(todo), desc=f"LLM pools {dataset}"))
         # GPU stage: one clip at a time, after an untimed warm-up so model loading isn't counted
         score_pool(np.zeros(config.SAMPLE_RATE, dtype=np.float32),

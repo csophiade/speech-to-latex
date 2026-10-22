@@ -29,7 +29,7 @@ def fill_levels(pool):
     return pool
 
 
-def build_pool(nbest, llm=config.LLM_MODEL, workers=8, context_vars=None):
+def build_pool(nbest, llm=config.LLM_MODEL, workers=8, context_vars=None, augment=None):
     """LaTeX candidates (with spoken forms) from every distinct transcript in the n-best list.
 
     Returns (pool, timing). Each pool entry: latex, level, src_rank (best beam that produced
@@ -37,6 +37,8 @@ def build_pool(nbest, llm=config.LLM_MODEL, workers=8, context_vars=None):
     timing: seconds of the top-beam LLM call, the slowest to_latex call, and the slowest
     to_spoken call; calls within a stage run concurrently, so a real system waits for the max.
     context_vars: variables already in use (derivation mode), passed to the LLM prompt.
+    augment: add confusable-number variants (src/augment.py; no LLM calls); None means
+    config.AUGMENT_CONFUSABLE. Variants carry augmented=True.
     """
     unique, seen = [], set()
     for rank, (text, lp) in enumerate(nbest):
@@ -64,17 +66,35 @@ def build_pool(nbest, llm=config.LLM_MODEL, workers=8, context_vars=None):
         spoken = list(ex.map(lambda p: to_spoken_timed(p["latex"], model=llm), pool))
     for p, (forms, _) in zip(pool, spoken):
         p["spoken"] = forms
+    if config.AUGMENT_CONFUSABLE if augment is None else augment:
+        add_variants(pool)
     timing = {"llm_top_s": answers[0][1] if answers else 0.0,
               "llm_latex_s": max((s for _, s in answers), default=0.0),
               "llm_spoken_s": max((s for _, s in spoken), default=0.0)}
     return pool, timing
 
 
-def score_pool(audio, pool):
+def add_variants(pool):
+    """Append confusable-number variants to pool in place (level filled on the main thread
+    only, as in build_pool); returns the new entries."""
+    from src.augment import augment_pool
+    new = augment_pool(pool)
+    if threading.current_thread() is threading.main_thread():
+        for p in new:
+            p["level"] = parse_graded(p["latex"])[1]
+    pool.extend(new)
+    return new
+
+
+def score_pool(audio, pool, only_missing=False):
     """Attach raw Whisper/phoneme scores for every spoken form (in place).
 
+    only_missing: score only entries without stored scores (migration of cached pools; raw
+    scores are per form, independent of the rest of the pool).
     Returns {"whisper_s", "phoneme_s"}: GPU seconds for each scorer (System D uses phoneme only).
     """
+    if only_missing:
+        pool = [p for p in pool if "whisper" not in p or "phoneme" not in p]
     flat = [s for p in pool for s in p["spoken"]]
     start = time.perf_counter()
     w = whisper_scores(audio, flat) if flat else []

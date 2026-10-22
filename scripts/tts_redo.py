@@ -1,6 +1,6 @@
 """Re-render synthesised clips that Whisper does not hear as their text; keep the best take.
 
-Usage: .venv/bin/python scripts/tts_redo.py [--rounds 3] [--max-wer 0.0] [--voices v3]
+Usage: .venv/bin/python scripts/tts_redo.py [--rounds 3] [--max-wer 0.0] [--voices v3] [--id-prefix hom-]
 
 Scores every clip in data/derivations/audio/manifest.jsonl (Whisper best-1 vs the spoken text,
 same normalisation as scripts/tts_qc.py; cached in qc.jsonl), then for up to --rounds rounds
@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from synthesize_derivations import MANIFEST, tts_text  # noqa: E402
-from tts_qc import score  # noqa: E402
+from tts_qc import all_errors, score  # noqa: E402
 
 from src.config import DATA_DIR  # noqa: E402
 from src.tts import synth_batch  # noqa: E402
@@ -35,18 +35,22 @@ def main():
     ap.add_argument("--rounds", type=int, default=3)
     ap.add_argument("--max-wer", type=float, default=0.0)
     ap.add_argument("--voices", help="comma-separated voices to score and re-render (default: all)")
+    ap.add_argument("--id-prefix", help="only score and re-render clips whose id starts with this (e.g. hom-)")
     args = ap.parse_args()
-    want = set(args.voices.split(",")) if args.voices else None
+    voices = set(args.voices.split(",")) if args.voices else None
+
+    def want_row(k):
+        return (voices is None or k[1] in voices) and (args.id_prefix is None or k[0].startswith(args.id_prefix))
 
     rows = {key(r): r for r in map(json.loads, MANIFEST.read_text().splitlines())}
-    errors = {it["id"]: it["error"] for it in json.loads((DATA_DIR / "derivations" / "derivations.json").read_text())}
+    errors = all_errors()
     qc = {key(q): q for q in map(json.loads, QC.read_text().splitlines())} if QC.exists() else {}
     for k, r in rows.items():
-        if k not in qc and (want is None or r["voice"] in want):
+        if k not in qc and want_row(k):
             s = score(r, errors)
             qc[k] = {"id": r["id"], "voice": r["voice"], "line": r["line"], "wer": s["wer"], "asr": s["asr"], "takes": 1}
     QC.write_text("".join(json.dumps(q) + "\n" for q in qc.values()))
-    mine = {k: q for k, q in qc.items() if want is None or k[1] in want}
+    mine = {k: q for k, q in qc.items() if want_row(k)}
     print("bad before:", sum(q["wer"] > args.max_wer for q in mine.values()), "of", len(mine))
 
     for rnd in range(1, args.rounds + 1):
@@ -74,7 +78,8 @@ def main():
         print(f"round {rnd}: re-rendered {len(bad)}, now clean {fixed}")
 
     for k, q in qc.items():
-        rows[k] |= {"qc_wer": round(q["wer"], 4), "qc_asr": q["asr"]}
+        if k in rows:
+            rows[k] |= {"qc_wer": round(q["wer"], 4), "qc_asr": q["asr"]}
     MANIFEST.write_text("".join(json.dumps(rows[k]) + "\n" for k in sorted(rows)))
     left = [q for q in mine.values() if q["wer"] > args.max_wer]
     print(f"still WER > {args.max_wer}: {len(left)}; WER > 0.15: {sum(q['wer'] > 0.15 for q in left)}")

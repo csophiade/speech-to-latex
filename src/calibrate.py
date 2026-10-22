@@ -114,3 +114,34 @@ def sweep(records, deltas):
     ms = [margin(r) for r in records if r["label"] == "error"]
     return [dict(evaluate(records, d), bound_event_rate=_rate(sum(m < d for m in ms), len(ms)))
             for d in deltas]
+
+
+# ---------- reading a test SCR against the calibrated bound ----------
+
+def bound_pvalues(x, n_test, k, n_cal):
+    """One-sided p-values for observing >= x silent items out of n_test against the calibrated bound.
+
+    binomial: treats k/(n_cal+1) as the exact miss rate (anti-conservative: ignores calibration randomness).
+    beta_binomial: split-conformal miss rate is Beta(k, n_cal+1-k) over the calibration draw, so the test
+    count is BetaBinomial(n_test, k, n_cal+1-k) (Vovk 2012; Angelopoulos & Bates 2021). This is the one to report.
+    Both assume independent test items (v1/v2 readings of the same derivation are not).
+    """
+    from scipy.stats import betabinom, binom
+    p = k / (n_cal + 1)
+    return {"x": x, "n_test": n_test, "bound": round(p, 4),
+            "binomial": float(binom.sf(x - 1, n_test, p)),
+            "beta_binomial": float(betabinom.sf(x - 1, n_test, k, n_cal + 1 - k))}
+
+
+def cluster_calibration(margins, clusters, alpha=0.05):
+    """Sensitivity check for paired calibration items (e.g. two voices reading one derivation).
+
+    Collapses the margins to one per cluster (min: an item counts if ANY reading is below δ; max: only if
+    every reading is) and recalibrates. Returns {n_items, n_clusters, min: (δ, k, n), max: (δ, k, n)}.
+    """
+    by = {}
+    for m, c in zip(margins, clusters):
+        by.setdefault(c, []).append(m)
+    return {"n_items": len(margins), "n_clusters": len(by),
+            "min": calibrate_delta([min(v) for v in by.values()], alpha),
+            "max": calibrate_delta([max(v) for v in by.values()], alpha)}

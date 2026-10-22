@@ -1,6 +1,8 @@
 """End-to-end derivation mode on real cached clips: frozen System D + checker + decide at the calibrated δ.
 
-Uses the stage-1 pools cached by scripts/run_derivations.py (no GPU or LLM calls); skipped if absent.
+Uses the stage-1 pools cached by scripts/run_derivations.py (augmented: confusable-number variants are
+in every v1/v2/rec/homophone pool; no GPU or LLM calls); skipped if absent. The calibrated δ is the
+pooled one (first-pass + homophone calibration errors), finite since the second Phase 4 pass.
 """
 
 import json
@@ -24,13 +26,16 @@ pytestmark = pytest.mark.skipif(not (STAGE1.exists() and CALIB.exists()), reason
 @pytest.fixture(scope="module")
 def run():
     done = read_cache(STAGE1)
-    clips = load_clips(("v1", "v2"))
+    clips = load_clips(("v1", "v2"), homophone=True)
     delta = json.loads(CALIB.read_text())["delta"]
     delta = math.inf if delta == "inf" else delta
 
-    def go(source, id_):
+    def go(source, id_, at=None):
         lines = sorted((c for c in clips if c["source"] == source and c["id"] == id_), key=lambda c: c["line"])
-        return run_derivation((lines, [done[clip_key(c)] for c in lines], delta, frozen_d()))
+        if not all(clip_key(c) in done for c in lines):
+            pytest.skip(f"{source}/{id_} not in the stage-1 cache")
+        return run_derivation((lines, [done[clip_key(c)] for c in lines], delta if at is None else at, frozen_d()))
+    go.delta = delta
     return go
 
 
@@ -58,6 +63,26 @@ def test_recording_error_flagged(run):
     assert recs[1]["out_eq_said"]                         # flagged, never silently rewritten
 
 
-def test_mishearing_corrected(run):
-    rec = run("v1", "lin-0018")[1]                        # heard 4(x - 25), said 4x - 25
-    assert rec["status"] == "corrected" and rec["heard"] != rec["output"] and rec["out_eq_said"]
+def test_mishearing_corrected_only_without_gate(run):
+    # heard 4(x - 25), said 4x - 25; the valid reading sits at Delta = 1.0 (rank prior): corrected with no
+    # gate (δ = +inf, the first-pass system), refused at the calibrated δ, which then cascades into a flag
+    # on the next (correct) line because it is checked against the misheard output.
+    assert 0.5 < run.delta < 1.0
+    ungated = run("v1", "lin-0018", at=math.inf)
+    assert ungated[1]["status"] == "corrected" and ungated[1]["out_eq_said"]
+    recs = run("v1", "lin-0018")
+    assert recs[1]["status"] == "math_error" and not recs[1]["out_eq_said"]
+    assert recs[2]["label"] == "valid" and recs[2]["status"] == "math_error"
+
+
+def test_homophone_error_not_silently_fixed(run):
+    # said "five x plus fifty plus eight" where 15 is right: augmentation puts the valid 5x + 15 + 8 in the
+    # pool; with no gate it would silently "fix" the speaker's mistake, at the calibrated δ it is flagged.
+    ungated = run("v1", "hom-0138", at=math.inf)
+    assert ungated[1]["status"] == "corrected" and not ungated[1]["out_eq_said"]
+    recs = run("v1", "hom-0138")
+    assert [r["label"] for r in recs] == ["given", "error"]
+    hom = [c for c in recs[1]["cands"] if c["valid"] and not c["eq_said"]]
+    assert hom and all(c["augmented"] for c in hom) and min(c["delta"] for c in hom) >= run.delta
+    assert recs[1]["status"] == "math_error" and recs[1]["out_eq_said"]
+    assert recs[1]["output"] == "5x + 50 + 8 = x + 20"

@@ -40,3 +40,7 @@ N_FEWSHOT = 8         # MathBridge few-shot pairs in the LLM prompt
 N_CHECK_POINTS = 20   # random points for numeric equivalence / residual checks
 NUM_TOL = 1e-6        # numeric tolerance
 SYMPY_TIMEOUT_S = 5   # per-pair timeout for symbolic checks
+
+# Phase 4: confusable-number pool augmentation (src/augment.py); shipped system = True.
+# Phase 2 single-equation results (results/tuned.json, ablation) are pre-augmentation.
+AUGMENT_CONFUSABLE = True

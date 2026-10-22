@@ -1,6 +1,9 @@
 """Phase 3.5: verbalise every derivation line with the LLM, synthesise it with both TTS voices.
 
 Usage: .venv/bin/python -W ignore scripts/synthesize_derivations.py [--limit N] [--ids a,b] [--voices v1,v2]
+       .venv/bin/python -W ignore scripts/synthesize_derivations.py --items-file data/derivations/homophone.json
+--items-file synthesises another derivations file in the same schema (the homophone stress set, ids "hom-");
+its rows go into the same manifest.
        .venv/bin/python -W ignore scripts/synthesize_derivations.py --accent-subset --voices v3
 --accent-subset restricts to data/derivations/accent_subset.json (created on first use: 50 calib + 50 test
 derivations, stratified by type and error presence, seed 42).
@@ -133,10 +136,11 @@ def main():
     ap.add_argument("--limit", type=int)
     ap.add_argument("--ids", help="comma-separated derivation ids")
     ap.add_argument("--accent-subset", action="store_true", help="only the derivations in accent_subset.json")
+    ap.add_argument("--items-file", type=Path, help=f"derivations file to read instead of {DERIVS.name}")
     ap.add_argument("--voices", default="v1,v2", help=f"any of {','.join(VOICES)}")
     args = ap.parse_args()
     voices = args.voices.split(",")
-    items = json.loads(DERIVS.read_text())
+    items = json.loads((args.items_file or DERIVS).read_text())
     ids = load_accent_subset(items) if args.accent_subset else args.ids and args.ids.split(",")
     items = select(items, ids, args.limit)
 
