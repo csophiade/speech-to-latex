@@ -85,13 +85,14 @@ def asr_verifier(max_wer=MAX_WER):
     return verify
 
 
-def ingest(src, out, min_gap_s=1.2, rel_thresh=0.3, verify=None):
+def ingest(src, out, min_gap_s=1.2, rel_thresh=0.3, verify=None, trim=None):
     """Split every labelled wav in src; returns (manifest rows, problems).
 
     Without verify, only the requested thresholds are used and a count mismatch is a problem.
     With verify (see asr_verifier), each candidate segmentation with the right count is transcribed
     and the first whose every line matches its label is kept; this catches segmentations whose count
-    is right by coincidence (one line split in two, two lines merged)."""
+    is right by coincidence (one line split in two, two lines merged).
+    trim: {file: seconds} cut from the start of a recording first (e.g. a noise burst before line 1)."""
     labels = read_labels(src / "recordings_labels.csv")
     rows, problems = [], []
     for file, lab in sorted(labels.items()):
@@ -101,6 +102,8 @@ def ingest(src, out, min_gap_s=1.2, rel_thresh=0.3, verify=None):
             problems.append({"file": file, "problem": "missing wav"})
             continue
         audio, sr = load_audio(src / file)
+        offset = (trim or {}).get(file, 0.0)
+        audio = audio[int(offset * sr):]
         found = settings(audio, n, min_gap_s, rel_thresh)
         default = split_on_silence(audio, sr, min_gap_s=min_gap_s, rel_thresh=rel_thresh)
         if verify is None:
@@ -130,8 +133,8 @@ def ingest(src, out, min_gap_s=1.2, rel_thresh=0.3, verify=None):
             sf.write(wav, audio[s:e], SAMPLE_RATE, subtype="PCM_16")
             row = {"id": stem, "file": file, "split": lab["split"], "deriv_type": lab["deriv_type"],
                    "error": lab["error"], "line": k, "n_lines": n, "latex": latex, "spoken": spoken,
-                   "wav": str(wav), "start_s": round(s / sr, 3), "end_s": round(e / sr, 3),
-                   "duration_s": round((e - s) / sr, 3), "split_params": params}
+                   "wav": str(wav), "start_s": round(offset + s / sr, 3), "end_s": round(offset + e / sr, 3),
+                   "duration_s": round((e - s) / sr, 3), "split_params": {**params, "trim_s": offset}}
             rows.append(row if verify is None else {**row, "asr": hyp, "wer": wer})
     out.mkdir(parents=True, exist_ok=True)
     (out / "manifest.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows))
@@ -145,9 +148,12 @@ def main():
     ap.add_argument("--min-gap", type=float, default=1.2)
     ap.add_argument("--rel-thresh", type=float, default=0.3)
     ap.add_argument("--check-asr", action="store_true")
+    ap.add_argument("--trim", action="append", default=[], metavar="FILE=SECONDS",
+                    help="cut SECONDS from the start of FILE before splitting (repeatable)")
     args = ap.parse_args()
+    trim = {f: float(t) for f, t in (x.split("=") for x in args.trim)}
     verify = asr_verifier() if args.check_asr else None
-    rows, problems = ingest(args.src, args.out, args.min_gap, args.rel_thresh, verify)
+    rows, problems = ingest(args.src, args.out, args.min_gap, args.rel_thresh, verify, trim)
     files = sorted({r["file"] for r in rows})
     by_split = {s: len({r["file"] for r in rows if r["split"] == s}) for s in ("calib", "test")}
     print(f"ingested {len(files)} files, {len(rows)} lines {by_split} -> {args.out / 'manifest.jsonl'}")
