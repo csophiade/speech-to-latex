@@ -38,9 +38,9 @@ NOTES = [
 
 
 def all_errors():
-    """id -> error over the Phase 3 derivations and the homophone stress set (if generated)."""
+    """id -> error over the Phase 3 derivations and the homophone stress sets (if generated)."""
     out = {}
-    for name in ("derivations.json", "homophone.json"):
+    for name in ("derivations.json", "homophone.json", "homophone_fresh.json"):
         f = DATA_DIR / "derivations" / name
         if f.exists():
             out |= {it["id"]: it["error"] for it in json.loads(f.read_text())}

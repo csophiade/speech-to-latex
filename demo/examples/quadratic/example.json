@@ -1,0 +1,42 @@
+{
+ "title": "Quadratic: divide by x, then a planted fifteen/fifty",
+ "source": "synthetic, voice v1 (CosyVoice2)",
+ "lines": [
+  {
+   "k": 0,
+   "wav": "line_0.wav",
+   "said": "x^3 + 5x^2 = 50x",
+   "spoken": "x cubed plus five x squared equals fifty x",
+   "purpose": "problem"
+  },
+  {
+   "k": 1,
+   "wav": "line_1.wav",
+   "said": "x^2 + 5x = 50",
+   "spoken": "x squared plus five x equals fifty",
+   "purpose": "divide-by-x: expected red flag 'dividing by x may lose the solution x = 0'"
+  },
+  {
+   "k": 2,
+   "wav": "line_2.wav",
+   "said": "x^2 + 5x - 15 = 0",
+   "spoken": "x squared plus five x minus fifteen equals zero",
+   "purpose": "planted fifteen/fifty: the speaker says fifteen; fifty makes the step valid"
+  },
+  {
+   "k": 3,
+   "wav": "line_3.wav",
+   "said": "(x + 10)(x - 5) = 0",
+   "spoken": "the quantity x plus ten times the quantity x minus five equals zero",
+   "purpose": "valid"
+  },
+  {
+   "k": 4,
+   "wav": "line_4.wav",
+   "said": "x = -10 \\text{ or } x = 5",
+   "spoken": "x equals negative ten or x equals five",
+   "purpose": "valid"
+  }
+ ],
+ "name": "quadratic"
+}

@@ -645,7 +645,7 @@ def report(llm, log=False):
     out["bound_tests"] = bound_tests(out["groups"]["cal"], cal)
     out["calib_pairing"] = calib_pairing(calib_recs)
     out["margin_structure"] = margin_structure(llm, calib_recs + [r for r in runs["cal"] if r["split"] == "test"])
-    out["sweep"] = plot_tradeoff(runs, cal, FIG / "scr_tradeoff.png", calib_recs)
+    out["sweep"] = plot_tradeoff(runs, cal, FIG / "scr_tradeoff_pooled.png", calib_recs)
     (config.RESULTS_DIR / "margins.json").write_text(
         dump(margins_json(cal, calib_recs, runs["cal"], runs["noaug_inf"])) + "\n")
     (work_dir(llm) / "report.json").write_text(dump(out))

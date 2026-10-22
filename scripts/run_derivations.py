@@ -26,6 +26,10 @@ GPU seconds are added to whisper_s/phoneme_s (a live system scores the whole poo
 batch, so this slightly overstates latency); the pre-augmentation values are kept as
 *_pre_aug and the added part as aug_*.
 
+Fresh confirmatory homophone set (results/reports/prereg_homophone.md): pass --items-file
+data/derivations/homophone_fresh.json to stage1; stage 2 runs via scripts/run_homfresh.py with the
+class-conditional rule (delta_hom for homophone-class candidates, decide.tag_homophone).
+
 Stage 2 (sequential per derivation, derivations in parallel processes): frozen System D scores,
 Delta(c) = D(ĉ) - D(c), checker status of every candidate against the system's own previous
 output, decide() at δ. Writes data/cache/derivations/<llm>/records_<delta>.jsonl: the line
@@ -92,11 +96,13 @@ def problem_vars(latex):
 def load_clips(voices=VOICES, homophone=False, first_pass=True):
     """Every line clip (dicts: source, split, set, id, line, n_lines, said, wav, qc_wer, label, line0), priority order.
     voices: synthetic voices to include (the manifest also holds the accented subset, v3, once synthesised).
-    homophone: also the homophone stress set (data/derivations/homophone.json, set "homophone");
+    homophone: also the homophone stress set (data/derivations/homophone.json, set "homophone"), or a
+    Path: that derivations file instead (e.g. the fresh confirmatory set);
     first_pass=False: only the homophone set (no recordings, no first-pass derivations)."""
     derivs = {d["id"]: dict(d, set="first-pass") for d in json.loads(DERIVS.read_text())} if first_pass else {}
-    if homophone and HOMOPHONE.exists():
-        derivs.update({d["id"]: d for d in json.loads(HOMOPHONE.read_text())})
+    hom_file = homophone if isinstance(homophone, Path) else HOMOPHONE if homophone else None
+    if hom_file is not None and hom_file.exists():
+        derivs.update({d["id"]: d for d in json.loads(hom_file.read_text())})
     clips = []
     for r in map(json.loads, open(RECS)) if first_pass else []:
         err = r["error"]["line"] if r["error"] else None
@@ -272,8 +278,9 @@ def line_candidates(pool, prev_out, line_index, params):
 
 def run_derivation(args):
     """Sequential decisions over one derivation's lines from one source -> list of records."""
-    lines, entries, delta, params = args
-    from src.decide import classes, decide, is_valid
+    lines, entries, delta, params, *rest = args
+    delta_hom = rest[0] if rest else None
+    from src.decide import classes, decide, is_valid, tag_homophone
     from src.eval import symeq
 
     records, prev_out = [], None
@@ -294,8 +301,10 @@ def run_derivation(args):
         cls = classes([x["latex"] for x in cands])
         for x, k in zip(cands, cls):
             x["cls"] = k
+        if delta_hom is not None:
+            cands = tag_homophone(cands)
         start = time.perf_counter()
-        d = decide(cands, delta, c["line"])
+        d = decide(cands, delta, c["line"], delta_hom=delta_hom)
         decide_s = time.perf_counter() - start
         eq = [symeq(c["said"], x["latex"]) == "equal" for x in cands]
         t = entry["timing"]
@@ -307,7 +316,8 @@ def run_derivation(args):
                       "explanation": cands[0]["explanation"]},
             "cands": [{"latex": x["latex"], "delta": x["delta"], "status": x["status"],
                        "valid": is_valid(x["status"]), "eq_said": e, "cls": x["cls"],
-                       "augmented": x.get("augmented", False)}
+                       "augmented": x.get("augmented", False),
+                       **({"hom_class": x["hom_class"]} if "hom_class" in x else {})}
                       for x, e in zip(cands, eq)],
             **d, "out_eq_said": symeq(c["said"], d["output"]) == "equal",
             "prev_out": prev_out, "latency": lat, "latency_s": sum(lat.values()),
@@ -336,10 +346,11 @@ def strip_augmentation(entry):
 
 
 def run_records(llm, delta, voices=VOICES, splits=None, workers=16, homophone=False, first_pass=True,
-                augmented=True):
+                augmented=True, delta_hom=None):
     """Per-line records at δ (list) for every derivation whose stage-1 clips exist; splits filters.
     homophone / first_pass: which sets to include (see load_clips). augmented=False: strip the
-    confusable-number variants from every pool (strip_augmentation), i.e. the pre-augmentation system."""
+    confusable-number variants from every pool (strip_augmentation), i.e. the pre-augmentation system.
+    delta_hom: class-conditional threshold for homophone-class candidates (None: single δ, old rule)."""
     done = read_cache(cache_dir(llm) / "stage1.jsonl")
     params = frozen_d()
     groups = {}
@@ -354,7 +365,7 @@ def run_records(llm, delta, voices=VOICES, splits=None, workers=16, homophone=Fa
             entries = [strip_augmentation(e) for e in entries]
         if entries[0] is None or all(e is None for e in entries):
             continue
-        jobs.append((lines, entries, delta, params))
+        jobs.append((lines, entries, delta, params) + (() if delta_hom is None else (delta_hom,)))
     with ProcessPoolExecutor(workers) as ex:
         results = list(tqdm(ex.map(run_derivation, jobs, chunksize=4), total=len(jobs), desc="stage2",
                             mininterval=30))
@@ -381,9 +392,11 @@ def main():
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--voices", nargs="+", default=list(VOICES), help="synthetic voices (recordings always)")
     ap.add_argument("--homophone", action="store_true", help="stage1: also the homophone stress set (hom-*)")
+    ap.add_argument("--items-file", type=Path, help="stage1: this homophone-schema file instead (homophone_fresh.json)")
     args = ap.parse_args()
     if args.stage == "stage1":
-        stage1(args.llm, args.limit, args.workers, voices=tuple(args.voices), homophone=args.homophone)
+        stage1(args.llm, args.limit, args.workers, voices=tuple(args.voices),
+               homophone=args.items_file or args.homophone)
     elif args.stage == "augment":
         augment_stage(args.llm, args.limit, tuple(args.voices))
     else:

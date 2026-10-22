@@ -9,8 +9,13 @@ candidate (first one on ties). A candidate is valid iff its status is "valid" or
   4. they form ≥ 2 classes -> "ask_back" with the smallest-delta member of the two best classes.
   3. otherwise keep ĉ: "math_error" (checker explanation) if ĉ is an error, else "unchecked".
 For ask_back the output is ĉ until the user picks an option. Flags: math_error and ask_back.
+
+Class-conditional (Mondrian) thresholds: a candidate carrying "hom_class": True (a single
+confusable-number swap of ĉ, see is_homophone_of / tag_homophone) is compared with delta_hom
+instead of δ when delta_hom is given. With delta_hom=None the rule is unchanged.
 """
 
+from src.augment import latex_swaps
 from src.eval import normalise, symeq
 
 VALID = {"valid", "caution"}
@@ -54,8 +59,25 @@ def _note(c):
     return c.get("explanation") if c["status"] == "caution" else None
 
 
-def decide(cands, delta, line_index):
-    """Apply the decision rule to one line's candidate pool at threshold δ."""
+def is_homophone_of(c_hat_latex, c_latex):
+    """True iff c is one confusable-number swap of ĉ (src/augment rules), compared by normalise()."""
+    target = normalise(c_latex)
+    return any(normalise(new) == target for new, *_ in latex_swaps(c_hat_latex))
+
+
+def tag_homophone(cands):
+    """Copies of cands with "hom_class" set by the runtime class rule against ĉ (smallest delta)."""
+    hat = min(cands, key=lambda c: c["delta"])["latex"]
+    return [dict(c, hom_class=is_homophone_of(hat, c["latex"])) for c in cands]
+
+
+def _threshold(c, delta, delta_hom):
+    return delta_hom if delta_hom is not None and c.get("hom_class") else delta
+
+
+def decide(cands, delta, line_index, delta_hom=None):
+    """Apply the decision rule to one line's candidate pool at threshold δ (delta_hom for
+    homophone-class candidates when given)."""
     order = sorted(range(len(cands)), key=lambda i: cands[i]["delta"])   # stable: ties keep pool order
     hat = cands[order[0]]
     heard = hat["latex"]
@@ -64,7 +86,8 @@ def decide(cands, delta, line_index):
     if is_valid(hat["status"]):
         return _out("verified", heard, heard, note=_note(hat))
     close = _with_classes([cands[i] for i in order
-                           if is_valid(cands[i]["status"]) and cands[i]["delta"] < delta])
+                           if is_valid(cands[i]["status"])
+                           and cands[i]["delta"] < _threshold(cands[i], delta, delta_hom)])
     best = {}
     for c in close:                       # sorted by delta: first member of each class is its best
         best.setdefault(c["cls"], c)

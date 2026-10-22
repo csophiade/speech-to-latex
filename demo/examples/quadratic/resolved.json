@@ -1,0 +1,271 @@
+[
+ {
+  "k": 0,
+  "said": "x^3 + 5x^2 = 50x",
+  "purpose": "problem",
+  "status": "given",
+  "output": "x^3 + 5x^2 = 50x",
+  "heard": "x^3 + 5x^2 = 50x",
+  "options": [],
+  "explanation": null,
+  "note": null,
+  "latency_s": 0.21881377301178873,
+  "latency_parts": {
+   "audio_s": 6.494001718237996e-05,
+   "asr_s": 0.08911669100052677,
+   "llm_s": 0.06827631298801862,
+   "whisper_score_s": 0.034457064990419894,
+   "phoneme_s": 0.021295398997608572,
+   "levels_s": 5.859998054802418e-06,
+   "checker_s": 0.0,
+   "classes_s": 0.0033936669933609664,
+   "decide_s": 5.409994628280401e-06,
+   "ipc_s": 0.002188488026149571
+  },
+  "llm_timing": {
+   "llm_top_s": 0.7178409399930388,
+   "llm_latex_s": 0.8997002859832719,
+   "llm_spoken_s": 0.709214761009207
+  },
+  "line_index": 0,
+  "transcript": "x cubed plus 5x squared equals 50x.",
+  "typed": false,
+  "suggestion": null,
+  "candidates": [
+   {
+    "latex": "x^3 + 5x^2 = 50x",
+    "delta": 0.0,
+    "status": "given",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x^3 + 5x^2 = 15x",
+    "delta": 0.5723788977585309,
+    "status": "given",
+    "hom_class": true,
+    "augmented": true
+   }
+  ],
+  "flagged": false,
+  "spoken_explanation": null
+ },
+ {
+  "k": 1,
+  "said": "x^2 + 5x = 50",
+  "purpose": "divide-by-x: expected red flag 'dividing by x may lose the solution x = 0'",
+  "status": "math_error",
+  "output": "x^2 + 5x = 50",
+  "heard": "x^2 + 5x = 50",
+  "options": [],
+  "explanation": "dividing by x may lose the solution x = 0",
+  "note": null,
+  "latency_s": 0.3507909009931609,
+  "latency_parts": {
+   "audio_s": 5.8200006606057286e-05,
+   "asr_s": 0.07659528398653492,
+   "llm_s": 0.006696002994431183,
+   "whisper_score_s": 0.04693339401273988,
+   "phoneme_s": 0.019997519993921742,
+   "levels_s": 4.5800115913152695e-06,
+   "checker_s": 0.10591553497943096,
+   "classes_s": 0.09211356900050305,
+   "decide_s": 8.548988262191415e-06,
+   "ipc_s": 0.002459937008097768
+  },
+  "llm_timing": {
+   "llm_top_s": 0.7005888720159419,
+   "llm_latex_s": 1.2733338170219213,
+   "llm_spoken_s": 0.7265053979936056
+  },
+  "line_index": 1,
+  "transcript": "x squared plus 5x equals 50.",
+  "typed": false,
+  "suggestion": null,
+  "candidates": [
+   {
+    "latex": "x^2 + 5x = 50",
+    "delta": 0.0,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x^2 + 5x = 15",
+    "delta": 0.5840028439256493,
+    "status": "error",
+    "hom_class": true,
+    "augmented": true
+   }
+  ],
+  "flagged": true,
+  "spoken_explanation": "Dividing by x may lose the solution x equals 0."
+ },
+ {
+  "k": 2,
+  "said": "x^2 + 5x - 15 = 0",
+  "purpose": "planted fifteen/fifty: the speaker says fifteen; fifty makes the step valid",
+  "status": "math_error",
+  "output": "x^2 + 5x - 15 = 0",
+  "heard": "x^2 + 5x - 15 = 0",
+  "options": [],
+  "explanation": "the solutions change from x = -10 or x = 5 to x = -sqrt(85)/2 - 5/2 or x = -5/2 + sqrt(85)/2",
+  "note": null,
+  "latency_s": 0.4661819070170168,
+  "latency_parts": {
+   "audio_s": 4.585101851262152e-05,
+   "asr_s": 0.08300852699903771,
+   "llm_s": 0.08153306899475865,
+   "whisper_score_s": 0.03325026697712019,
+   "phoneme_s": 0.020366910001030192,
+   "levels_s": 5.110021447762847e-06,
+   "checker_s": 0.06394241700763814,
+   "classes_s": 0.18178084900137037,
+   "decide_s": 9.69000393524766e-06,
+   "ipc_s": 0.0022284769802354276
+  },
+  "llm_timing": {
+   "llm_top_s": 0.7093093500006944,
+   "llm_latex_s": 1.2872820690099616,
+   "llm_spoken_s": 0.7501604880089872
+  },
+  "line_index": 2,
+  "transcript": "x squared plus 5x minus 15 equals 0.",
+  "typed": false,
+  "suggestion": {
+   "latex": "x^2 + 5x - 50 = 0",
+   "delta": 1.0,
+   "words": [
+    "fifteen",
+    "fifty"
+   ]
+  },
+  "candidates": [
+   {
+    "latex": "x^2 + 5x - 15 = 0",
+    "delta": 0.0,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x^2 + 5x - 50 = 0",
+    "delta": 1.0,
+    "status": "valid",
+    "hom_class": true,
+    "augmented": true
+   }
+  ],
+  "flagged": true,
+  "spoken_explanation": "You said fifteen; fifty would make this step valid. Did you mean fifty?"
+ },
+ {
+  "k": 3,
+  "said": "(x + 10)(x - 5) = 0",
+  "purpose": "valid",
+  "status": "math_error",
+  "output": "(x+10)(x-5)=0",
+  "heard": "(x+10)(x-5)=0",
+  "options": [],
+  "explanation": "the solutions change from x = -sqrt(85)/2 - 5/2 or x = -5/2 + sqrt(85)/2 to x = -10 or x = 5",
+  "note": null,
+  "latency_s": 0.4194985930225812,
+  "latency_parts": {
+   "audio_s": 7.03000114299357e-05,
+   "asr_s": 0.16905723200761713,
+   "llm_s": 0.08414664599695243,
+   "whisper_score_s": 0.03166781799518503,
+   "phoneme_s": 0.020878520008409396,
+   "levels_s": 4.709989298135042e-06,
+   "checker_s": 0.1085779920394998,
+   "classes_s": 0.0024626879894640297,
+   "decide_s": 8.230010280385613e-06,
+   "ipc_s": 0.0026147869939450175
+  },
+  "llm_timing": {
+   "llm_top_s": 0.9180101130041294,
+   "llm_latex_s": 0.9180101130041294,
+   "llm_spoken_s": 0.9297158170084003
+  },
+  "line_index": 3,
+  "transcript": "The quantity x plus 10 times the quantity x minus 5 equals 0.",
+  "typed": false,
+  "suggestion": null,
+  "candidates": [
+   {
+    "latex": "(x+10)(x-5)=0",
+    "delta": 0.0,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x+10(x-5)=0",
+    "delta": 0.6560239344176623,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   }
+  ],
+  "flagged": true,
+  "spoken_explanation": "This step changes the solutions, so it does not follow from the line before."
+ },
+ {
+  "k": 4,
+  "said": "x = -10 \\text{ or } x = 5",
+  "purpose": "valid",
+  "status": "verified",
+  "output": "x = -10 \\text{ or } x = 5",
+  "heard": "x = -10 \\text{ or } x = 5",
+  "options": [],
+  "explanation": null,
+  "note": null,
+  "latency_s": 0.49817478499608114,
+  "latency_parts": {
+   "audio_s": 5.5729993619024754e-05,
+   "asr_s": 0.11915989202680066,
+   "llm_s": 0.3134991179977078,
+   "whisper_score_s": 0.03357301698997617,
+   "phoneme_s": 0.021571188000962138,
+   "levels_s": 7.399998139590025e-06,
+   "checker_s": 0.007703221985138953,
+   "classes_s": 0.0002484699944034219,
+   "decide_s": 6.839982233941555e-06,
+   "ipc_s": 0.002335718018002808
+  },
+  "llm_timing": {
+   "llm_top_s": 0.9461690159805585,
+   "llm_latex_s": 0.9482312029867899,
+   "llm_spoken_s": 0.8832323669921607
+  },
+  "line_index": 4,
+  "transcript": "x equals negative 10 or x equals 5.",
+  "typed": false,
+  "suggestion": null,
+  "candidates": [
+   {
+    "latex": "x = -10 \\text{ or } x = 5",
+    "delta": 0.0,
+    "status": "valid",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x = -10 \\lor x = 5",
+    "delta": 1.0,
+    "status": "unchecked",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x = -10 \\text{ or } 5",
+    "delta": 1.5408212908735277,
+    "status": "unchecked",
+    "hom_class": false,
+    "augmented": false
+   }
+  ],
+  "flagged": false,
+  "spoken_explanation": null
+ }
+]

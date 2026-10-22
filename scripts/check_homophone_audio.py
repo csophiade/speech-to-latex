@@ -1,6 +1,6 @@
 """Check that the homophone error lines are verbalised, and heard, with the SAID number.
 
-Usage: .venv/bin/python -W ignore scripts/check_homophone_audio.py [--text-only]
+Usage: .venv/bin/python -W ignore scripts/check_homophone_audio.py [--text-only] [--items-file F]
 --text-only: check the LLM verbalisations in the manifest (before/without audio QC).
 Otherwise also checks Whisper best-1 (qc_asr, written by scripts/tts_redo.py) on every error-line clip:
 "heard said" = the said number word is present and the correct one absent (unless the correct number
@@ -43,8 +43,9 @@ def hears_said(text, item):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--text-only", action="store_true")
+    ap.add_argument("--items-file", type=Path, default=HOM, help="e.g. data/derivations/homophone_fresh.json")
     args = ap.parse_args()
-    items = {it["id"]: it for it in json.loads(HOM.read_text())}
+    items = {it["id"]: it for it in json.loads(args.items_file.read_text())}
     rows = [r for r in map(json.loads, MANIFEST.read_text().splitlines())
             if r["id"] in items and r["line"] == items[r["id"]]["error"]["line"]]
     stats, bad = Counter(), []

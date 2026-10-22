@@ -1,4 +1,4 @@
-from src.decide import classes, decide
+from src.decide import classes, decide, is_homophone_of, tag_homophone
 
 
 def c(latex, delta, status, cls=None, explanation=None):
@@ -72,3 +72,38 @@ def test_classes_from_symeq_when_cls_missing():
     assert classes(["(x+1)^2", "x^2 + 2x + 1", "x^2 + 1"]) == [0, 0, 2]
     cands = [c("y = 0", 0.0, "error"), c("y = (x+1)^2", 0.1, "valid"), c("y = x^2 + 2x + 1", 0.2, "valid")]
     assert decide(cands, 1.0, 1)["status"] == "corrected"
+
+
+# ---------- class-conditional (Mondrian) thresholds ----------
+
+def test_is_homophone_of_single_swap():
+    assert is_homophone_of("x = 15", "x = 50")
+    assert is_homophone_of("2x + 13 = 30", "2x + 30 = 30")
+    assert is_homophone_of("x=15", "x = 50")                     # compared by normalise()
+    assert not is_homophone_of("x = 15", "x = 15")               # no swap
+    assert not is_homophone_of("15x = 15", "50x = 50")           # two swaps
+    assert not is_homophone_of("x = 15", "x = 16")               # not a confusable pair
+    assert not is_homophone_of("x_{15} = 2", "x_{50} = 2")       # subscripts are labels
+    assert not is_homophone_of("x = 150", "x = 500")             # part of a longer number
+
+
+def test_tag_homophone_uses_hat():
+    cands = tag_homophone([c("x = 50", 0.2, "valid"), c("x = 15", 0.0, "error"), c("x = 2", 0.1, "valid")])
+    assert [x["hom_class"] for x in cands] == [True, False, False]
+
+
+def test_delta_hom_none_is_old_rule():
+    cands = [c("x = 15", 0.0, "error", 0, "why"), dict(c("x = 50", 0.3, "valid", 1), hom_class=True)]
+    assert decide(cands, 0.4, 2) == decide(cands, 0.4, 2, delta_hom=None)
+    assert decide(cands, 0.4, 2)["status"] == "corrected"
+
+
+def test_delta_hom_applies_only_to_hom_class():
+    hom = dict(c("x = 50", 0.3, "valid", 1), hom_class=True)
+    other = dict(c("x = 7", 0.35, "valid", 2), hom_class=False)
+    hat = c("x = 15", 0.0, "error", 0, "why")
+    assert decide([hat, hom], 1.0, 2, delta_hom=0.25)["status"] == "math_error"
+    assert decide([hat, hom], 0.1, 2, delta_hom=0.5)["status"] == "corrected"
+    out = decide([hat, hom, other], 0.4, 2, delta_hom=0.25)
+    assert out["status"] == "corrected" and out["output"] == "x = 7"
+    assert decide([hat, hom, other], 0.4, 2, delta_hom=0.5)["status"] == "ask_back"

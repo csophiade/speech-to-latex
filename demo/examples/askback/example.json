@@ -1,0 +1,28 @@
+{
+ "title": "Ask-back: fifty times the quantity ... equals fifteen times fifty",
+ "source": "synthetic, voice v1 (CosyVoice2)",
+ "lines": [
+  {
+   "k": 0,
+   "wav": "line_0.wav",
+   "said": "15x^2 + 75x = 750",
+   "spoken": "fifteen x squared plus seventy five x equals seven hundred fifty",
+   "purpose": "problem"
+  },
+  {
+   "k": 1,
+   "wav": "line_1.wav",
+   "said": "50(x^2 + 5x) = 15 \\cdot 50",
+   "spoken": "fifty times the quantity x squared plus five x equals fifteen times fifty",
+   "purpose": "ask-back attempt: 15(x^2 + 5x) = 15 * 50 and 50(x^2 + 5x) = 50 * 50 are both valid"
+  },
+  {
+   "k": 2,
+   "wav": "line_2.wav",
+   "said": "x^2 + 5x = 50",
+   "spoken": "x squared plus five x equals fifty",
+   "purpose": "valid"
+  }
+ ],
+ "name": "askback"
+}

@@ -9,3 +9,5 @@ models/
 .cache/
 .DS_Store
 .pytest_cache/
+.gradio/
+demo/examples/rec_*/

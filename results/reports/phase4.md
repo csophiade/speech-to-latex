@@ -6,6 +6,24 @@ The shipped system now adds **confusable-number variants** to every candidate po
 δ is calibrated on a pooled calibration set that includes a **homophone stress set**: the speaker says a number whose
 sound-alike is the correct one, e.g. "fifty" where fifteen is right.
 
+**Method: class-conditional (Mondrian) conformal calibration.** A pooled calibration controls the silent-correction
+rate of the *mixture* of error types, so a risky class can exceed the bound (the homophone test: 11/100, beta-binomial
+p = 0.02); calibrating one δ per error class, each on that class's calibration errors only, is the principled fix.
+Both are reported:
+
+| threshold | homophone test set | SCR v1 | SCR v2 | beta-binomial p (v1 / v2) | status |
+|---|---|---|---|---|---|
+| pooled δ = 0.552 (n = 327, k = 16) | existing (100 per voice) | 11/100 | 10/100 | 0.022 / 0.043 vs Beta(16, 312) | bound exceeded on this class (honest mixed result: pooled test not rejected, p = 0.20 / 0.28) |
+| pooled δ = 0.552 | fresh (100 per voice) | 7/100 | 9/100 | 0.24 / 0.08 (descriptive) | secondary |
+| **class-conditional: δ_hom = 0.540 (n = 200 homophone calibration errors, k = 10) for homophone-class candidates, pooled δ otherwise** | **fresh, prespecified (100 per voice)** | **2/100** | **3/100** | **0.93 / 0.82 vs Beta(10, 191)** | **headline stress number: consistent with the 5% bound** |
+| no gate (δ = +∞, augmented) | existing / fresh | 97 / 91 of 100 | 95 / 93 of 100 | | reference |
+
+The fresh set (100 new homophone derivations, seed 4242, no problem shared with the 600 existing items), δ_hom and the
+evaluation plan were fixed in `results/reports/prereg_homophone.md` (commit 8dc764e) before the fresh set was generated;
+nothing was changed after its outputs were seen (one disclosed, generator-driven difference: the -teen/-ty direction mix is 64/36 against 59/41 on the existing set). Details: `results/reports/confirmatory_homophone.md`. v1 and v2 are the
+same derivations re-read (sensitivity, not replicates). At runtime the class is identifiable: a candidate that is one
+confusable-number swap of the best-sounding reading is homophone-class (`src/decide.is_homophone_of`).
+
 **On this test data, augmentation buys no measured benefit.** The non-augmented system weakly dominates the shipped
 one on every measured axis. On the pooled test set it has the same or a higher fix rate (v1 8/58 = 0.138 vs 7/58 = 0.121; v2
 7/59 = 0.119 vs 5/59 = 0.085) and SCR 0/160 instead of 11/160 and 10/160. The benefit augmentation is meant to bring
@@ -18,21 +36,20 @@ on the 100 homophone test errors per voice are:
 | augmentation, no gate (δ = +∞) | **97/100** | **95/100** | **corrects sound-alikes indiscriminately**: almost every homophone mistake is silently "fixed". Its only extra "power" is these wrong corrections. |
 | augmentation + calibrated δ = 0.552 (shipped) | **11/100** | **10/100** | **the gate cuts silent corrections to 11 and 10 per 100**, with no fix-rate gain over no augmentation |
 
-The earlier "safety without power / power without safety / both" framing is retracted: it is not supported by this data.
-What the experiment does show is narrower. *If* the pool contains a sound-alike reading, an ungated system silently
-corrects nearly every homophone mistake, and the calibrated δ removes about 9 in 10 of those silent corrections. For the
-slide: "δ is what makes adding sound-alike candidates safe enough to ship; on this data adding them has not yet paid off."
+Augmentation showed no benefit here because clean TTS and careful reading produced no natural -teen/-ty mishearings in
+the test set; its benefit is latent for real dictation, and its cost — near-universal silent correction, 97 of 100 (v1;
+95 of 100 for v2) — is what δ demonstrably controls.
 
 There are three things this does not show:
 
-- **The homophone stress number is above the 5% target.** The bound is calibrated for the *pooled* error mix: k/(n+1) = 16/328 = 4.9%.
+- **With the pooled δ alone, the homophone stress number is above the 5% target** (this is what the class-conditional δ above fixes). The pooled bound is calibrated for the *pooled* error mix: k/(n+1) = 16/328 = 4.9%.
   - On the pooled test set, SCR is 11/160 = 6.9% (v1) and 10/160 = 6.3% (v2). Both point estimates are above 4.9%, but the bound is **not rejected** (one-sided beta-binomial p = 0.20 and 0.28).
   - On the homophone subset alone, SCR is 11% and 10%. The bound is rejected there (beta-binomial p = 0.022 and 0.043).
   - The p-values use the beta-binomial because split-conformal miscoverage is itself random over the calibration draw, Beta(k, n+1−k) = Beta(16, 312). A plain Binomial(n, 0.049) treats 0.049 as exact and is anti-conservative: it gives 0.16/0.26 pooled and 0.010/0.024 homophone.
   - v1 and v2 are not two independent tests: they read the same derivations.
   - The pooled number is largely mechanical. All 60 first-pass errors per voice have margin +∞, so pooled SCR = homophone SCR × 100/160: the homophone number diluted.
   - The bound is marginal over the calibration mix, not a per-subset guarantee. 127 of the 327 calibration errors have margin +∞, and they dilute the homophone items: 15 of 200 homophone calibration items (7.5%) lie below δ.
-  - So the sentence "even when the right answer sounds identical, silent corrections stay under the bound" is **not supported** and is not used anywhere in this report.
+  - So for the pooled δ the sentence "even when the right answer sounds identical, silent corrections stay under the bound" is **not supported**. The supported statement is the class-conditional one: on the fresh prespecified homophone set, 2/100 and 3/100.
 - **Augmentation did not raise the fix rate.**
   - No mishearing in any test group was fixed by an augmented candidate (0 everywhere).
   - No first-pass mishearing was a -teen/-ty swap.
@@ -42,7 +59,9 @@ There are three things this does not show:
   - Neither is a sample of real students' mistakes.
   - The headline figures are rates on this mix only.
 
-Figure: `results/figures/scr_tradeoff.png`.
+Figure (headline): `results/figures/scr_tradeoff.png`. Per voice, side by side: homophone-test SCR with no gate → gated (arrows), for the existing set at pooled δ and the fresh set at pooled δ and at the class-conditional δ (headline, starred), with the α = 5% line.
+
+Figure (pooled, earlier headline): `results/figures/scr_tradeoff_pooled.png`.
 
 - Left panel: fix rate against SCR on the pooled test set, per voice, with and without augmentation. The three real operating points are marked.
 - Right panel: homophone-test SCR against δ, with the empirical CDF of the calibration margins (pooled, and homophone-only) that δ was read from.
@@ -56,7 +75,7 @@ Pipeline per line:
 5. `checker.check_step` of every candidate against the system's own previous output.
 6. `decide.decide` at δ.
 
-Code: `scripts/run_derivations.py` (stage 1, augmentation, sequential stage 2) and `scripts/run_phase4.py` (calibrate, run, ablation, report). Results rows 42–59 in `results/results.json`. Rows 33–41 are first-pass rows, kept and marked `superseded: true`, except v3 (row 35, marked `pre_augmentation: true`).
+Code: `scripts/run_derivations.py` (stage 1, augmentation, sequential stage 2) and `scripts/run_phase4.py` (calibrate, run, ablation, report). Results rows 42–59 in `results/results.json`; the confirmatory fresh-set rows are 60–65 (`deriv_test_homfresh_v1`/`_v2`, `scripts/run_homfresh.py`). Rows 33–41 are first-pass rows, kept and marked `superseded: true`, except v3 (row 35, marked `pre_augmentation: true`).
 
 **Sources:**
 
@@ -104,7 +123,7 @@ Pairing does not break the marginal bound when the test derivations are exchange
 
 So δ = 0.552 is a threshold on a pool-relative quantity: "correct to a sound-alike only when, after z-scaling across this pool, the heard form's phoneme advantage is under about 0.2 pool-z". It is not a statement about how well "fifteen" and "fifty" can be told apart. Nothing was retuned. A pool-independent acoustic term would be a Phase 2 change.
 
-**Not adopted (for the owner to decide).** A homophone-only (class-conditional) calibration on the 200 homophone calibration items alone gives δ = 0.5395 (k = 10). It is computed from calibration data only. It targets the per-subset guarantee that the stress number asks for. It was **not** evaluated on test: choosing it after seeing the test result would make that evaluation post hoc, so adopting it needs a fresh homophone test set.
+**Class-conditional (Mondrian) δ, adopted by the owner.** A homophone-only calibration on the 200 homophone calibration items alone gives δ_hom = 0.5395 (k = 10, k/(n+1) = 0.0498). It is computed from calibration data only. It was not evaluated on the existing homophone test set (that would be post hoc); it was evaluated once, on a fresh prespecified set (prereg commit 8dc764e): SCR 2/100 (v1) and 3/100 (v2), beta-binomial p = 0.93 and 0.82, consistent with the bound. See `results/reports/confirmatory_homophone.md`.
 
 ## 2. SCR three ways (calibrated δ = 0.552, real sequential run; SCR is project-specific, lower is better)
 
@@ -284,7 +303,7 @@ The owner asked for no further accented-voice work. v3 keeps its first-pass numb
     - `status_at_calibrated_delta`;
     - a compact record that `src.calibrate.simulate(record, δ)` replays. Its candidates carry an `augmented` flag.
   - 243 mishearing items.
-- **`results/figures/scr_tradeoff.png`**: the headline figure. A copy of the first-pass figure is at `/tmp/claude-0/-workspace/14c433da-a855-4d21-a32b-b06750b0ea68/scratchpad/p4b/scr_tradeoff.pre_aug.png`.
+- **`results/figures/scr_tradeoff.png`**: the headline figure (fresh-set class-conditional points; `scripts/run_homfresh.py`). **`results/figures/scr_tradeoff_pooled.png`**: the pooled fix-rate/SCR figure (`scripts/run_phase4.py report`). A copy of the first-pass figure is at `/tmp/claude-0/-workspace/14c433da-a855-4d21-a32b-b06750b0ea68/scratchpad/p4b/scr_tradeoff.pre_aug.png`.
 - **`data/cache/derivations/gpt-4.1-mini/phase4/`**:
   - `calibration.json`, `calib_records.jsonl`;
   - `records.jsonl` (calibrated), `records_aug_inf.jsonl`, `records_noaug_inf.jsonl`;

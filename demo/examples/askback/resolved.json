@@ -1,0 +1,186 @@
+[
+ {
+  "k": 0,
+  "said": "15x^2 + 75x = 750",
+  "purpose": "problem",
+  "status": "given",
+  "output": "15x^2 + 75x = 750",
+  "heard": "15x^2 + 75x = 750",
+  "options": [],
+  "explanation": null,
+  "note": null,
+  "latency_s": 1.1615486659866292,
+  "latency_parts": {
+   "audio_s": 7.343999459408224e-05,
+   "asr_s": 0.09315258701099083,
+   "llm_s": 0.981443994998699,
+   "whisper_score_s": 0.04662702398491092,
+   "phoneme_s": 0.025249355006963015,
+   "levels_s": 5.709996912628412e-06,
+   "checker_s": 0.0,
+   "classes_s": 0.003605815989430994,
+   "decide_s": 5.609996151179075e-06,
+   "ipc_s": 0.011373429006198421
+  },
+  "llm_timing": {
+   "llm_top_s": 0.643087425007252,
+   "llm_latex_s": 1.0828079910133965,
+   "llm_spoken_s": 0.8455924360023346
+  },
+  "line_index": 0,
+  "transcript": "15x squared plus 75x equals 750.",
+  "typed": false,
+  "suggestion": null,
+  "candidates": [
+   {
+    "latex": "15x^2 + 75x = 750",
+    "delta": 0.0,
+    "status": "given",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "50x^2 + 75x = 750",
+    "delta": 0.5848471464802272,
+    "status": "given",
+    "hom_class": true,
+    "augmented": true
+   }
+  ],
+  "flagged": false,
+  "spoken_explanation": null
+ },
+ {
+  "k": 1,
+  "said": "50(x^2 + 5x) = 15 \\cdot 50",
+  "purpose": "ask-back attempt: 15(x^2 + 5x) = 15 * 50 and 50(x^2 + 5x) = 50 * 50 are both valid",
+  "status": "ask_back",
+  "output": "50 ( x^2 + 5x ) = 15 \\times 50",
+  "heard": "50 ( x^2 + 5x ) = 15 \\times 50",
+  "options": [
+   "50 ( x^2 + 5x ) = 50 \\times 50",
+   "15 ( x^2 + 5x ) = 15 \\times 50"
+  ],
+  "explanation": "the solutions change from x = -10 or x = 5 to x = -sqrt(85)/2 - 5/2 or x = -5/2 + sqrt(85)/2",
+  "note": null,
+  "latency_s": 4.037289768020855,
+  "latency_parts": {
+   "audio_s": 8.059001993387938e-05,
+   "asr_s": 0.12826194197987206,
+   "llm_s": 0.5089325350127183,
+   "whisper_score_s": 0.049798721011029556,
+   "phoneme_s": 0.03272790799383074,
+   "levels_s": 9.889015927910805e-06,
+   "checker_s": 0.46428542197099887,
+   "classes_s": 2.8504940280108713,
+   "decide_s": 2.164999023079872e-05,
+   "ipc_s": 0.002655305026564747
+  },
+  "llm_timing": {
+   "llm_top_s": 0.9949765839846805,
+   "llm_latex_s": 0.9949765839846805,
+   "llm_spoken_s": 0.929642897011945
+  },
+  "line_index": 1,
+  "transcript": "50 times the quantity x squared plus 5x equals 15 times 50.",
+  "typed": false,
+  "suggestion": null,
+  "candidates": [
+   {
+    "latex": "50 ( x^2 + 5x ) = 15 \\times 50",
+    "delta": 0.0,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "50 ( x^2 + 5x ) = 15 \\cdot 50",
+    "delta": 0.1893712644364891,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "50 ( x^2 + 5x ) = 50 \\times 50",
+    "delta": 0.5336744050097526,
+    "status": "valid",
+    "hom_class": true,
+    "augmented": true
+   },
+   {
+    "latex": "15 ( x^2 + 5x ) = 15 \\times 50",
+    "delta": 0.5360323536834742,
+    "status": "valid",
+    "hom_class": true,
+    "augmented": true
+   },
+   {
+    "latex": "50 ( x^2 + 5x ) = 15 \\times 15",
+    "delta": 0.5388813367713641,
+    "status": "error",
+    "hom_class": true,
+    "augmented": true
+   }
+  ],
+  "flagged": true,
+  "spoken_explanation": "Two sound-alike readings make this step valid. Did you mean fifty instead of fifteen, or fifteen instead of fifty?"
+ },
+ {
+  "k": 2,
+  "said": "x^2 + 5x = 50",
+  "purpose": "valid",
+  "status": "math_error",
+  "output": "x^2 + 5x = 50",
+  "heard": "x^2 + 5x = 50",
+  "options": [],
+  "explanation": "the solutions change from x = -sqrt(85)/2 - 5/2 or x = -5/2 + sqrt(85)/2 to x = -10 or x = 5",
+  "note": null,
+  "latency_s": 0.44238948097336106,
+  "latency_parts": {
+   "audio_s": 0.00016274998779408634,
+   "asr_s": 0.1395744509936776,
+   "llm_s": 0.056305884005269036,
+   "whisper_score_s": 0.03565081499982625,
+   "phoneme_s": 0.024903605022700503,
+   "levels_s": 5.790003342553973e-06,
+   "checker_s": 0.08975383202778175,
+   "classes_s": 0.09372218701173551,
+   "decide_s": 1.2750009773299098e-05,
+   "ipc_s": 0.0022879369207657874
+  },
+  "llm_timing": {
+   "llm_top_s": 0.7412521789956372,
+   "llm_latex_s": 0.7479556210164446,
+   "llm_spoken_s": 0.7265053979936056
+  },
+  "line_index": 2,
+  "transcript": "x squared plus 5x equals 50",
+  "typed": false,
+  "suggestion": {
+   "latex": "x^2 + 5x = 15",
+   "delta": 0.5750568987435584,
+   "words": [
+    "fifty",
+    "fifteen"
+   ]
+  },
+  "candidates": [
+   {
+    "latex": "x^2 + 5x = 50",
+    "delta": 0.0,
+    "status": "error",
+    "hom_class": false,
+    "augmented": false
+   },
+   {
+    "latex": "x^2 + 5x = 15",
+    "delta": 0.5750568987435584,
+    "status": "valid",
+    "hom_class": true,
+    "augmented": true
+   }
+  ],
+  "flagged": true,
+  "spoken_explanation": "You said fifty; fifteen would make this step valid. Did you mean fifteen?"
+ }
+]
