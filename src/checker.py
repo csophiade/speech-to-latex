@@ -35,6 +35,7 @@ from sympy.calculus.util import continuous_domain
 from sympy.core.relational import Relational
 
 from src.config import N_CHECK_POINTS, NUM_TOL, SEED, SYMPY_TIMEOUT_S
+from src.calculus import calculus_step, constants, evaluate, has_calculus, parse_bar_line
 from src.mathparse import Timeout, implicit_products, parse_graded, time_limit
 
 PM = sympy.Symbol("\\pm")
@@ -178,7 +179,9 @@ def read_line(latex, deadline=None):
     deadline = time.monotonic() + SYMPY_TIMEOUT_S if deadline is None else deadline
     if _NO_SOLUTION.match(latex or ""):
         return {"rel": None, "sol": (None, S.EmptySet), "bad": None}
-    obj = parse_graded(latex, timeout=math.ceil(_left(deadline) * 2) / 2)[0]   # rounded: keeps the cache useful
+    obj = parse_bar_line(latex)   # [F]_a^b and F|_a^b: evaluation bars
+    if obj is None:
+        obj = parse_graded(latex, timeout=math.ceil(_left(deadline) * 2) / 2)[0]   # rounded: keeps the cache useful
     if obj is None:
         return None
     obj = implicit_products(obj)   # x(x - 3) is a product
@@ -189,7 +192,26 @@ def read_line(latex, deadline=None):
         return _interpret(obj)
 
 
+def _impossible_and(obj):
+    """'x = 2 and x = 3': a variable cannot take two values at once (the speaker meant "or")."""
+    if not (isinstance(obj, sympy.Tuple) and isinstance(obj[0], sympy.Symbol)
+            and obj[0].name.startswith("__rel__:") and set(obj[0].name[8:].split(",")) <= {"and", "text:and"}):
+        return None
+    parts = [_solution(x) for x in obj[1:]]
+    if len(parts) < 2 or not all(p and p[0] == parts[0][0] and len(p[1]) == 1 for p in parts):
+        return None
+    vals = sympy.FiniteSet(*[next(iter(p[1])) for p in parts])
+    if len(vals) < 2:
+        return None
+    var, shown = parts[0][0], " and ".join(_show(v) for v in _points(vals))
+    return (f"{var} cannot be {shown} at the same time: \"and\" means both must hold. "
+            f"Did you mean \"{' or '.join(f'{var} = {_show(v)}' for v in _points(vals))}\"?")
+
+
 def _interpret(obj):
+    bad = _impossible_and(obj)
+    if bad:
+        return {"rel": None, "sol": None, "bad": bad}
     sol = _solution(obj)
     if sol is not None:
         is_eq = isinstance(obj, sympy.Eq) and not obj.has(PM) and len(sol[1]) == 1
@@ -352,6 +374,30 @@ def _hint(p, c, syms):
     return None
 
 
+def _operation(p, c, syms):
+    """'subtracting 50 from both sides gives x = 40, not x = 30': one side of the step is a clean
+    add/subtract or divide/multiply by a constant, and the other side got the wrong result."""
+    for (pa, ca), (pb, cb) in (((p.lhs, c.lhs), (p.rhs, c.rhs)), ((p.rhs, c.rhs), (p.lhs, c.lhs))):
+        d = sympy.simplify(pa - ca)
+        moved = d in sympy.Add.make_args(pa) and set(sympy.Add.make_args(ca)) == set(sympy.Add.make_args(pa)) - {d}
+        if d != 0 and d.is_number and moved:   # a term literally taken off this side
+            want = sympy.simplify(pb - d)
+            if not _same(want, cb, syms):
+                verb = f"subtracting {_show(d)} from" if d > 0 else f"adding {_show(-d)} to"
+                return f"{verb} both sides gives {_show(ca)} = {_show(want)}, not {_show(ca)} = {_show(cb)}" \
+                    if pa is p.lhs else f"{verb} both sides gives {_show(want)} = {_show(ca)}, not {_show(cb)} = {_show(ca)}"
+        k = sympy.simplify(pa / ca) if ca != 0 else None
+        coeff = isinstance(pa, sympy.Mul) and k in pa.args and sympy.Mul(*[a for a in pa.args if a != k]) == ca
+        if k is not None and k.is_number and k not in (0, 1) and coeff:   # this side literally divided by k
+            want = sympy.simplify(pb / k)
+            if not _same(want, cb, syms):
+                verb = f"dividing both sides by {_show(k)}" if abs(k) > 1 or not k.is_rational \
+                    else f"multiplying both sides by {_show(1 / k)}"
+                return f"{verb} gives {_show(ca)} = {_show(want)}, not {_show(ca)} = {_show(cb)}" \
+                    if pa is p.lhs else f"{verb} gives {_show(want)} = {_show(ca)}, not {_show(cb)} = {_show(ca)}"
+    return None
+
+
 def _explain(p, c, var, sp, sc, syms, ineq):
     """(status, explanation) for a step whose ratio g is not constant."""
     rp, rc = _res(p), _res(c)
@@ -385,7 +431,9 @@ def _explain(p, c, var, sp, sc, syms, ineq):
             return "caution", f"multiplying by {fs} is only allowed because {fs} ≠ 0 here{note}"
     if not changed:
         return "caution", "this step is not a simple equivalence, but the solutions are unchanged"
-    hint = _hint(p, c, syms)
+    op, hint = _operation(p, c, syms), _hint(p, c, syms)
+    if op:
+        return "error", f"{op} ({hint})" if hint else op
     moved = f"the solutions change from {_fmt(var, sp)} to {_fmt(var, sc)}"
     return "error", f"{hint}; {moved}" if hint else moved
 
@@ -430,9 +478,34 @@ def _extraneous(var, stated, before, orig):
     return None
 
 
+def _calculus(p, c):
+    """Calculus steps: side-by-side verdict, or both lines with their operators evaluated (and new
+    integration constants set to 0) for the algebra check below. Returns (verdict | None, p, c)."""
+    pr, cr = p["rel"], c["rel"]
+    res = calculus_step(pr, cr)
+    if res is not None:
+        return _out(res["status"], why=res["explanation"]), p, c
+    if cr is not None and pr is not None and pr.atoms(sympy.Integral):
+        cr = cr.subs({k: 0 for k in constants(cr, pr.free_symbols)})
+    ev = [type(r)(evaluate(r.lhs), evaluate(r.rhs), evaluate=False) if r is not None else None for r in (pr, cr)]
+    if all(r is not None and not r.free_symbols for r in ev):   # numbers only: compare the values
+        vp, vc = (complex(sympy.N(_res(r))) for r in ev)
+        if abs(vp - vc) < NUM_TOL * max(1.0, abs(vp)):
+            return _out("valid"), p, c
+        return _out("error", why=f"this changes the value: left minus right was {vp.real:.4g} and is now {vc.real:.4g}"), p, c
+    new = [_interpret(r) if r is not None else x for r, x in zip(ev, (p, c))]
+    if None in new:
+        return _out("unchecked", why="could not evaluate the calculus in this step"), p, c
+    return None, new[0], new[1]
+
+
 def _check(p, c, base=S.Reals, orig=None):
     if c["bad"]:
         return _out("error", why=c["bad"])
+    if has_calculus(p["rel"]) or has_calculus(c["rel"]):
+        verdict, p, c = _calculus(p, c)
+        if verdict is not None:
+            return verdict
     pr, cr = p["rel"], c["rel"]
     syms = sorted(set().union(*[x.free_symbols for x in (pr, cr) if x is not None],
                               *[{x["sol"][0]} for x in (p, c) if x["sol"] and x["sol"][0] is not None]), key=str)

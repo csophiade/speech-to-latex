@@ -115,7 +115,8 @@ def test_derivation_flags_first_wrong_line():
     lines = [r"3(x-1)=2x+5", r"3x-3=2x+5", r"3x=2x+2", r"x=2"]
     out = check_derivation(lines)
     assert [r["status"] for r in out] == ["given", "valid", "error", "valid"]
-    assert out[2]["explanation"].startswith("check the sign of -3")
+    assert out[2]["explanation"].startswith("adding 3 to both sides gives 3x = 2x + 8, not 3x = 2x + 2")
+    assert "check the sign of -3" in out[2]["explanation"]
 
 
 # ---------- review regressions ----------
