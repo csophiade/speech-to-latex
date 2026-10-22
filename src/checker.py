@@ -35,7 +35,7 @@ from sympy.calculus.util import continuous_domain
 from sympy.core.relational import Relational
 
 from src.config import N_CHECK_POINTS, NUM_TOL, SEED, SYMPY_TIMEOUT_S
-from src.calculus import calculus_step, constants, evaluate, has_calculus, parse_bar_line
+from src.calculus import _side as calculus_side, _zero, calculus_step, constants, evaluate, has_calculus, parse_bar_line
 from src.mathparse import Timeout, implicit_products, parse_graded, time_limit
 
 PM = sympy.Symbol("\\pm")
@@ -173,12 +173,27 @@ def _left(deadline):
     return max(0.05, deadline - time.monotonic())
 
 
+_DDX = re.compile(r"(?<![\\\w])d\s*/\s*d([a-z])(?![a-z])")
+
+
+def _normalise(latex):
+    """Typed shorthands: d/dx -> \\frac{d}{dx}; a leading '=' continues the previous line."""
+    s = _DDX.sub(r"\\frac{d}{d\1}", latex or "")
+    return re.sub(r"^\s*=\s*", "", s)
+
+
+def readable(x):
+    """A read line that says something checkable (a relation, a solution, an expression or a slip)."""
+    return x is not None and (x["rel"] is not None or x["sol"] is not None or x.get("expr") is not None or bool(x["bad"]))
+
+
 def read_line(latex, deadline=None):
     """Parse one line into {"rel": Relational|None, "sol": (var, set)|None, "bad": str|None}, or None.
     "no solution" gives sol (None, EmptySet); the checker fills in the variable."""
     deadline = time.monotonic() + SYMPY_TIMEOUT_S if deadline is None else deadline
     if _NO_SOLUTION.match(latex or ""):
         return {"rel": None, "sol": (None, S.EmptySet), "bad": None}
+    latex = _normalise(latex)
     obj = parse_bar_line(latex)   # [F]_a^b and F|_a^b: evaluation bars
     if obj is None:
         obj = parse_graded(latex, timeout=math.ceil(_left(deadline) * 2) / 2)[0]   # rounded: keeps the cache useful
@@ -228,6 +243,8 @@ def _interpret(obj):
             sol = _solution(rel)
             sol = sol if sol and not rel.rhs.has(PM) else None
         return {"rel": rel, "sol": sol, "bad": bad}
+    if isinstance(obj, sympy.Expr) and not isinstance(obj, sympy.Tuple) and not obj.has(PM):
+        return {"rel": None, "sol": None, "bad": None, "expr": obj}   # an expression: equal to the previous line
     if isinstance(obj, sympy.Tuple) and isinstance(obj[0], sympy.Symbol) \
             and obj[0].name.startswith("__rel__:"):
         ops = set(obj[0].name[8:].split(","))
@@ -499,9 +516,28 @@ def _calculus(p, c):
     return None, new[0], new[1]
 
 
+def _expr_step(p, c):
+    """Expression lines (d/dx[...] then its working): each must equal the previous one."""
+    pe, ce = p.get("expr"), c.get("expr")
+    if pe is None or ce is None:
+        return _out("unchecked", why="cannot compare an expression with an equation")
+    res = calculus_side(pe, ce, pe.free_symbols)
+    if res is not None:
+        status, why = res
+        return _out({"ok": "valid"}.get(status, status), why=why)
+    if has_calculus(ce):
+        return _out("unchecked", why="could not evaluate the calculus in this step")
+    if _zero(evaluate(pe) - ce, None):
+        return _out("valid")
+    return _out("error", why=f"this is not equal to the previous line: {_show(pe)} = "
+                             f"{_show(sympy.expand(evaluate(pe)))}, not {_show(sympy.expand(ce))}")
+
+
 def _check(p, c, base=S.Reals, orig=None):
     if c["bad"]:
         return _out("error", why=c["bad"])
+    if p.get("expr") is not None or c.get("expr") is not None:
+        return _expr_step(p, c)
     if has_calculus(p["rel"]) or has_calculus(c["rel"]):
         verdict, p, c = _calculus(p, c)
         if verdict is not None:
@@ -591,7 +627,7 @@ def check_step(prev_latex, cur_latex):
     One SYMPY_TIMEOUT_S deadline covers reading both lines and the check (main thread only)."""
     deadline = time.monotonic() + SYMPY_TIMEOUT_S
     p, c = _read(prev_latex, deadline), _read(cur_latex, deadline)
-    if p is None or c is None or p["rel"] is None and p["sol"] is None:
+    if not readable(p) or not readable(c) or p["bad"]:
         return _out("unchecked", why="this line could not be read" if c is None else "the previous line could not be read")
     return _safe_check(p, c, deadline=deadline)
 
@@ -617,7 +653,7 @@ def check_derivation(lines):
     if not lines:
         return []
     first = _read(lines[0])
-    first = first if first and (first["rel"] is not None or first["sol"] is not None) and not first["bad"] else None
+    first = first if readable(first) and not first["bad"] else None
     base, true = _problem(first)
     kind = "equation" if first and type(first["rel"]) is sympy.Eq else "inequality"
     out = [{"line": 0, "status": "given", "explanation": None}]
@@ -625,7 +661,7 @@ def check_derivation(lines):
     for i in range(1, len(lines)):
         deadline = time.monotonic() + SYMPY_TIMEOUT_S   # reading the line and checking the step
         c = _read(lines[i], deadline)
-        if c is None or (c["rel"] is None and c["sol"] is None and not c["bad"]):
+        if not readable(c):
             out.append({"line": i, "status": "unchecked", "explanation": "this line could not be read"})
             gap = True
             continue

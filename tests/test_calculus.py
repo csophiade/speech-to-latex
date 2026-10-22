@@ -62,3 +62,29 @@ def test_display_keeps_structure():
     assert "<mfrac>" in m and "<msup>" in m
     m = mathml(r"\int_0^1 \cos x\,dx=0")
     assert "<msubsup>" in m and re.search(r"&#x0222B;|∫", m)
+
+
+# expression lines: a problem like d/dx[...] and its working, each line equal to the previous one
+P = r"d/dx[(x^2+1)(3x-2)]"
+
+
+@pytest.mark.parametrize("prev,cur,status,phrase", [
+    (P, r"2x(3x-2)+3(x^2+1)", "valid", None),                       # owner's report: was unreadable
+    (P, r"2x(3x-2)+(x^2+1)", "error", "derivative of (3x - 2)(x^2 + 1) is 9x^2 - 4x + 3"),
+    (P, r"= 9x^2-4x+3", "valid", None),                              # leading '=' continues the line
+    (r"\frac{d}{dx}\left[(x^2+1)(3x-2)\right]", r"9x^2-4x+3", "valid", None),
+    (r"2x(3x-2)+3(x^2+1)", r"9x^2-4x+1", "error", "not equal to the previous line"),
+    (r"\int 5x\,dx", r"\frac{5}{2}x^2+C", "valid", None),
+    (r"\int 5x\,dx", r"5x^2+C", "error", "not an antiderivative"),
+])
+def test_expression_lines(prev, cur, status, phrase):
+    out = check_step(prev, cur)
+    assert out["status"] == status, out
+    if phrase:
+        assert phrase.lower() in (out["explanation"] or "").lower(), out
+
+
+def test_product_rule_derivation():
+    from src.checker import check_derivation
+    out = check_derivation([P, r"2x(3x-2)+3(x^2+1)", r"6x^2-4x+3x^2+3", r"9x^2-4x+3"])
+    assert [r["status"] for r in out] == ["given", "valid", "valid", "valid"]
