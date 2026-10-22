@@ -907,3 +907,13 @@ def try_parse(latex, timeout=SYMPY_TIMEOUT_S):
 
 def parses(latex):
     return parse_graded(latex)[1] != "none"
+
+
+def implicit_products(obj):
+    """x(x - 3) as a product, not a call: single-argument applications of a one-letter name other
+    than f, g, h become multiplication. Opt-in (used by the checker) so parse_graded, and every
+    metric built on it, is unchanged."""
+    return obj.replace(
+        lambda e: isinstance(e, AppliedUndef) and len(e.args) == 1 and len(e.func.__name__) == 1
+        and e.func.__name__ not in "fghFGH",
+        lambda e: sympy.Symbol(e.func.__name__) * e.args[0])
