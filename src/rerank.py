@@ -29,13 +29,14 @@ def fill_levels(pool):
     return pool
 
 
-def build_pool(nbest, llm=config.LLM_MODEL, workers=8):
+def build_pool(nbest, llm=config.LLM_MODEL, workers=8, context_vars=None):
     """LaTeX candidates (with spoken forms) from every distinct transcript in the n-best list.
 
     Returns (pool, timing). Each pool entry: latex, level, src_rank (best beam that produced
     it), src_logprob, cand_rank (position in that beam's LLM answer), spoken (verbalisations).
     timing: seconds of the top-beam LLM call, the slowest to_latex call, and the slowest
     to_spoken call; calls within a stage run concurrently, so a real system waits for the max.
+    context_vars: variables already in use (derivation mode), passed to the LLM prompt.
     """
     unique, seen = [], set()
     for rank, (text, lp) in enumerate(nbest):
@@ -44,7 +45,7 @@ def build_pool(nbest, llm=config.LLM_MODEL, workers=8):
             seen.add(key)
             unique.append((rank, text, lp))
     with ThreadPoolExecutor(workers) as ex:
-        answers = list(ex.map(lambda u: to_latex_timed(u[1], model=llm), unique))
+        answers = list(ex.map(lambda u: to_latex_timed(u[1], context_vars, model=llm), unique))
 
     pool, index = [], {}
     for (rank, _, lp), (cands, _) in zip(unique, answers):
@@ -101,6 +102,17 @@ def _bonus(pool, lam):
     return [lam * LEVEL_BONUS[p["level"]] for p in pool]
 
 
+def system_scores(system, pool, lam=1.0, gamma=0.25, eps=0.05):
+    """Per-candidate score of System C or D (see select); select's argmax is over these."""
+    base = [p["src_logprob"] for p in pool]
+    if system == "D":
+        phon = acoustic_scores(pool, beta=0.0)
+        base = [b + gamma * a - eps * p["cand_rank"] for b, a, p in zip(base, phon, pool)]
+    elif system != "C":
+        raise ValueError(system)
+    return [b + x for b, x in zip(base, _bonus(pool, lam))]
+
+
 def select(system, pool, lam=1.0, gamma=0.25, eps=0.05):
     """Index of the chosen candidate in `pool` (None if the pool is empty).
 
@@ -118,12 +130,6 @@ def select(system, pool, lam=1.0, gamma=0.25, eps=0.05):
     if system == "B":
         valid = [i for i in top if pool[i]["level"] != "none"]
         return min(valid or top, key=lambda i: pool[i]["cand_rank"])
-    base = [p["src_logprob"] for p in pool]
-    if system == "D":
-        phon = acoustic_scores(pool, beta=0.0)
-        base = [b + gamma * a - eps * p["cand_rank"] for b, a, p in zip(base, phon, pool)]
-    elif system != "C":
-        raise ValueError(system)
-    scores = [b + x for b, x in zip(base, _bonus(pool, lam))]
+    scores = system_scores(system, pool, lam, gamma, eps)
     # ties: better beam, then the LLM's own ordering
     return max(range(len(pool)), key=lambda i: (scores[i], -pool[i]["src_rank"], -pool[i]["cand_rank"]))

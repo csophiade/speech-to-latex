@@ -1,10 +1,13 @@
 """Phase 3.1: derivation generator ground truth."""
 
+import json
 from collections import Counter
 
 import pytest
 
-from src.derivgen import ERROR_TYPES, TYPES, domain_of, generate, parse_line, solution_set
+from src.config import DATA_DIR
+
+from src.derivgen import ERROR_TYPES, TYPES, domain_of, generate, parse_line, solution_set, step_labels
 
 
 @pytest.fixture(scope="module")
@@ -47,6 +50,26 @@ def test_schema(items):
         assert bad == ([i["error"]["line"]] if i["error"] else [])
         for s in i["lines"] + [i["solution"]]:
             parse_line(s)
+
+
+def test_step_label(items):
+    """given / valid / error / follows_error, consistent with step_valid and error.line."""
+    assert step_labels(5, None) == ["given"] + ["valid"] * 4
+    assert step_labels(6, 2) == ["given", "valid", "error", "follows_error", "follows_error", "follows_error"]
+    for i in items:
+        lab = i["step_label"]
+        assert len(lab) == len(i["lines"]) and lab[0] == "given"
+        assert [k for k, v in enumerate(lab) if v == "error"] == [k for k, v in enumerate(i["step_valid"]) if not v]
+        if i["error"]:
+            assert all(v == "follows_error" for v in lab[i["error"]["line"] + 1:])
+        else:
+            assert "follows_error" not in lab
+
+
+def test_saved_dataset_matches_generator(items):
+    """derivations.json (from which the audio was synthesised) equals generate() field for field."""
+    saved = json.loads((DATA_DIR / "derivations" / "derivations.json").read_text())
+    assert saved == items
 
 
 def test_steps_match_solution_sets(items):

@@ -1,5 +1,16 @@
 # Checker sample explanations
 
+Derivation test split: 200 derivations, 813 steps (641 valid, 60 error, 112 follows_error).
+
+| flag | precision | recall | F1 | TP | FP | FN |
+|---|---|---|---|---|---|---|
+| error, adjusted (headline) | 1.000 | 1.000 | 1.000 | 60 | 0 | 0 |
+| error, strict | 0.857 | 1.000 | 0.923 | 60 | 10 | 0 |
+| error + caution, adjusted (reference only) | 0.600 | 1.000 | 0.750 | 60 | 40 | 0 |
+| error + caution, strict (reference only) | 0.545 | 1.000 | 0.706 | 60 | 50 | 0 |
+
+Only status "error" is a flag; "caution" is a note to the user, never a flag. Strict counts flags on lines that correctly follow from an earlier injected error as false positives (10 such flags, e.g. a final answer that keeps the extraneous root of an injected squaring step); adjusted counts them as neither TP nor FP. All 40 cautions were multiplications by a nonzero denominator.
+
 One caught injected error per kind from the derivation test split (text input).
 
 ## divide_by_variable (qfac-0005)

@@ -1,7 +1,7 @@
 """CosyVoice2 batch worker. Runs under /workspace/tts-venv, NOT the project venv.
 
 Usage: tts_worker.py items.jsonl
-Each line: {"text": ..., "voice": "v1"|"v2", "out_path": ...}. Writes 16 kHz mono wav per item,
+Each line: {"text": ..., "voice": "v1"|"v2"|"v3", "out_path": ...}. Writes 16 kHz mono wav per item,
 prints one JSON line per item ({"out_path", "audio_s", "compute_s"} or {"out_path", "error"}).
 """
 
@@ -13,7 +13,9 @@ import time
 COSYVOICE_DIR = os.environ.get("COSYVOICE_DIR", "/workspace/models/CosyVoice")
 MODEL_DIR = os.environ.get("COSYVOICE_MODEL", "/workspace/models/CosyVoice2-0.5B")
 REF_DIR = os.environ.get("TTS_REF_DIR", "/workspace/models/tts_refs")
-VOICES = ("v1", "v2")  # v1 = LibriSpeech 1272 (male), v2 = LibriSpeech 1993 (female)
+ACCENT_REF_DIR = os.environ.get("ACCENT_REF_DIR", "/workspace/models/accent_ref")
+# v1 = LibriSpeech 1272 (male), v2 = LibriSpeech 1993 (female), v3 = L2-ARCTIC TXHC (male, L1 Mandarin; CC BY-NC 4.0)
+REF_DIRS = {"v1": REF_DIR, "v2": REF_DIR, "v3": ACCENT_REF_DIR}
 OUT_SR = 16000
 
 sys.path[:0] = [COSYVOICE_DIR, os.path.join(COSYVOICE_DIR, "third_party/Matcha-TTS")]
@@ -25,13 +27,12 @@ def main(jsonl_path):
     import torch
     from cosyvoice.cli.cosyvoice import CosyVoice2
 
-    tts = CosyVoice2(MODEL_DIR, fp16=True)
-    for v in VOICES:  # embed each reference clip once
-        ref_text = open(os.path.join(REF_DIR, f"{v}.txt")).read().strip()
-        tts.add_zero_shot_spk(ref_text, os.path.join(REF_DIR, f"{v}.wav"), v)
-
     with open(jsonl_path) as f:
         items = [json.loads(line) for line in f if line.strip()]
+    tts = CosyVoice2(MODEL_DIR, fp16=True)
+    for v in sorted({it["voice"] for it in items}):  # embed each needed reference clip once
+        ref_text = open(os.path.join(REF_DIRS[v], f"{v}.txt")).read().strip()
+        tts.add_zero_shot_spk(ref_text, os.path.join(REF_DIRS[v], f"{v}.wav"), v)
     for it in items:
         try:
             t0 = time.time()

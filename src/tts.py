@@ -2,7 +2,9 @@
 
 The TTS stack pins torch/transformers versions that clash with ours, so we shell out to
 scripts/tts_worker.py. Voices: "v1" (male) and "v2" (female), zero-shot cloned from
-LibriSpeech dev-clean reference clips (CC BY 4.0) in /workspace/models/tts_refs.
+LibriSpeech dev-clean reference clips (CC BY 4.0) in /workspace/models/tts_refs; "v3" (accented male,
+L1 Mandarin) cloned from L2-ARCTIC speaker TXHC (CC BY-NC 4.0, not redistributed) in
+/workspace/models/accent_ref. v3 is only used for the 100-derivation accent subset.
 """
 
 import json
@@ -12,7 +14,7 @@ from pathlib import Path
 
 TTS_PYTHON = "/workspace/tts-venv/bin/python"
 WORKER = Path(__file__).resolve().parent.parent / "scripts" / "tts_worker.py"
-VOICES = ("v1", "v2")
+VOICES = ("v1", "v2", "v3")
 
 
 def synth_batch(items):

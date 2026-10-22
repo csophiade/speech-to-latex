@@ -1,12 +1,16 @@
 """Phase 3.5: verbalise every derivation line with the LLM, synthesise it with both TTS voices.
 
 Usage: .venv/bin/python -W ignore scripts/synthesize_derivations.py [--limit N] [--ids a,b] [--voices v1,v2]
+       .venv/bin/python -W ignore scripts/synthesize_derivations.py --accent-subset --voices v3
+--accent-subset restricts to data/derivations/accent_subset.json (created on first use: 50 calib + 50 test
+derivations, stratified by type and error presence, seed 42).
 Writes data/derivations/audio/<voice>/<id>/line_<k>.wav and data/derivations/audio/manifest.jsonl
 ({id, voice, line, latex, spoken, wav, duration_s}). Resumable: existing wavs are skipped.
 """
 
 import argparse
 import json
+import random
 import re
 import sys
 import threading
@@ -24,6 +28,7 @@ from src.tts import VOICES, synth_batch  # noqa: E402
 DERIVS = DATA_DIR / "derivations" / "derivations.json"
 AUDIO_DIR = DATA_DIR / "derivations" / "audio"
 MANIFEST = AUDIO_DIR / "manifest.jsonl"
+ACCENT_SUBSET = DATA_DIR / "derivations" / "accent_subset.json"
 _LOCK = threading.Lock()
 CHUNK = 150   # lines per TTS worker call: ~65 s model load amortised, progress saved per chunk
 
@@ -102,14 +107,38 @@ def select(items, ids=None, limit=None):
     return items[:limit] if limit else items
 
 
+def accent_subset(items, per_split=50, seed=42):
+    """Ids of a split-balanced subset, stratified by (type, has error) with proportional allocation."""
+    rng = random.Random(seed)
+    ids = []
+    for split in ("calib", "test"):
+        pool = [it for it in items if it["split"] == split]
+        strata = {}
+        for it in pool:
+            strata.setdefault((it["type"], it["error"] is not None), []).append(it["id"])
+        for key in sorted(strata):
+            ids += rng.sample(sorted(strata[key]), round(per_split * len(strata[key]) / len(pool)))
+    return ids
+
+
+def load_accent_subset(items):
+    """The saved accent subset; created (and saved) on first use so it never changes afterwards."""
+    if not ACCENT_SUBSET.exists():
+        ACCENT_SUBSET.write_text(json.dumps({"seed": 42, "ids": accent_subset(items)}, indent=1) + "\n")
+    return json.loads(ACCENT_SUBSET.read_text())["ids"]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int)
     ap.add_argument("--ids", help="comma-separated derivation ids")
-    ap.add_argument("--voices", default=",".join(VOICES))
+    ap.add_argument("--accent-subset", action="store_true", help="only the derivations in accent_subset.json")
+    ap.add_argument("--voices", default="v1,v2", help=f"any of {','.join(VOICES)}")
     args = ap.parse_args()
     voices = args.voices.split(",")
-    items = select(json.loads(DERIVS.read_text()), args.ids and args.ids.split(","), args.limit)
+    items = json.loads(DERIVS.read_text())
+    ids = load_accent_subset(items) if args.accent_subset else args.ids and args.ids.split(",")
+    items = select(items, ids, args.limit)
 
     lines = [(it["id"], k, latex) for it in items for k, latex in enumerate(it["lines"])]
     with ThreadPoolExecutor(8) as pool:

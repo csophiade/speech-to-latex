@@ -10,7 +10,9 @@ x are written "x \\cdot (x - 3)" (the checker also reads the dictated "x(x - 3)"
 mathparse.implicit_products; the form is kept so the synthesised audio matches derivations.json).
 
 Error items carry exactly one wrong line; later lines continue correctly from the wrong line, as a
-student would, so step_valid is False only there. Parameters are resampled until every line is
+student would, so step_valid is False only there. step_label names each line "given" (line 0), "valid",
+"error" (the wrong line) or "follows_error" (after it: correct from the mistake, wrong for the problem).
+Parameters are resampled until every line is
 "nice" (integer or simple-fraction answers) and the ground truth checks out.
 """
 
@@ -374,6 +376,17 @@ def verify(item):
 
 # ---------- dataset ----------
 
+def step_labels(n_lines, bad):
+    """Per-line ground truth: given | valid | error | follows_error (bad = error line or None)."""
+    def one(k):
+        if k == 0:
+            return "given"
+        if bad is None or k < bad:
+            return "valid"
+        return "error" if k == bad else "follows_error"
+    return [one(k) for k in range(n_lines)]
+
+
 def make_item(rng, dtype, err, tries=2000):
     for _ in range(tries):
         try:
@@ -412,6 +425,7 @@ def generate(seed=SEED, per_type=PER_TYPE):
         for i, it in enumerate(made):
             items.append({"id": f"{PREFIX[dtype]}-{i:04d}", "split": it["split"], "type": dtype,
                           "lines": it["lines"], "step_valid": it["step_valid"],
+                          "step_label": step_labels(len(it["lines"]), it["error"] and it["error"]["line"]),
                           "error": it["error"], "solution": it["solution"]})
     return items
 

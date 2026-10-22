@@ -1,6 +1,6 @@
 """Re-render synthesised clips that Whisper does not hear as their text; keep the best take.
 
-Usage: .venv/bin/python scripts/tts_redo.py [--rounds 3] [--max-wer 0.0]
+Usage: .venv/bin/python scripts/tts_redo.py [--rounds 3] [--max-wer 0.0] [--voices v3]
 
 Scores every clip in data/derivations/audio/manifest.jsonl (Whisper best-1 vs the spoken text,
 same normalisation as scripts/tts_qc.py; cached in qc.jsonl), then for up to --rounds rounds
@@ -34,20 +34,23 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--rounds", type=int, default=3)
     ap.add_argument("--max-wer", type=float, default=0.0)
+    ap.add_argument("--voices", help="comma-separated voices to score and re-render (default: all)")
     args = ap.parse_args()
+    want = set(args.voices.split(",")) if args.voices else None
 
     rows = {key(r): r for r in map(json.loads, MANIFEST.read_text().splitlines())}
     errors = {it["id"]: it["error"] for it in json.loads((DATA_DIR / "derivations" / "derivations.json").read_text())}
     qc = {key(q): q for q in map(json.loads, QC.read_text().splitlines())} if QC.exists() else {}
     for k, r in rows.items():
-        if k not in qc:
+        if k not in qc and (want is None or r["voice"] in want):
             s = score(r, errors)
             qc[k] = {"id": r["id"], "voice": r["voice"], "line": r["line"], "wer": s["wer"], "asr": s["asr"], "takes": 1}
     QC.write_text("".join(json.dumps(q) + "\n" for q in qc.values()))
-    print("bad before:", sum(q["wer"] > args.max_wer for q in qc.values()), "of", len(qc))
+    mine = {k: q for k, q in qc.items() if want is None or k[1] in want}
+    print("bad before:", sum(q["wer"] > args.max_wer for q in mine.values()), "of", len(mine))
 
     for rnd in range(1, args.rounds + 1):
-        bad = [rows[k] for k, q in qc.items() if q["wer"] > args.max_wer]
+        bad = [rows[k] for k, q in mine.items() if q["wer"] > args.max_wer]
         if not bad:
             break
         for r in bad:   # keep the current take aside until the new one is scored
@@ -73,7 +76,7 @@ def main():
     for k, q in qc.items():
         rows[k] |= {"qc_wer": round(q["wer"], 4), "qc_asr": q["asr"]}
     MANIFEST.write_text("".join(json.dumps(rows[k]) + "\n" for k in sorted(rows)))
-    left = [q for q in qc.values() if q["wer"] > args.max_wer]
+    left = [q for q in mine.values() if q["wer"] > args.max_wer]
     print(f"still WER > {args.max_wer}: {len(left)}; WER > 0.15: {sum(q['wer'] > 0.15 for q in left)}")
     for q in sorted(left, key=lambda q: -q["wer"])[:30]:
         print(f"  {q['wer']:.2f} {q['voice']} {q['id']}:{q['line']} -> {q['asr']}")
