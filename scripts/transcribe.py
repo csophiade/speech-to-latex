@@ -1,5 +1,5 @@
-import torch
 import librosa
+import torch
 from transformers import pipeline
 
 audio_path = "data/initial_test_math.wav"
