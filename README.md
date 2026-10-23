@@ -1,8 +1,8 @@
 # Speech-to-LaTeX
 
-Say a maths derivation out loud, line by line, and get it back as LaTeX with every step checked. When a step is wrong the system says so, in words and out loud ("dividing by x may lose the solution x = 0"), instead of quietly rewriting what you said. It is built for students who dictate maths (for accessibility or for learning) and for teachers who want feedback on each step.
+Say a maths derivation out loud, line by line, and get it back as LaTeX with every step checked. When a step is wrong the system says so, in words and out loud. It is built for students who dictate maths (for accessibility or for learning) and for teachers who want feedback on each step.
 
-The core rule is **faithfulness**: if you *said* a mistake, the system keeps your mistake and flags it. It only corrects a line when the audio itself is ambiguous, and how often it may do that silently is calibrated to stay at about 5% (see [How it works](#how-it-works)).
+It only corrects a line when the audio itself is ambiguous, and how often it may do that silently is calibrated to stay at about 5% (see [How it works](#how-it-works)).
 
 Nothing is fine-tuned: the system combines off-the-shelf speech, language and symbolic-maths models.
 
