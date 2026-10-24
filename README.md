@@ -198,8 +198,6 @@ Voices:
   LibriSpeech ASR corpus, CC BY 4.0: V. Panayotov, G. Chen, D. Povey and S. Khudanpur, "LibriSpeech: an ASR
   corpus based on public domain audio books", ICASSP 2015. It is derived from LibriVox public-domain recordings.
   The reference clips are not redistributed.
-- The accented voice v3 is cloned from L2-ARCTIC speaker TXHC (Zhao et al., Interspeech 2018), CC BY-NC 4.0
-  (non-commercial; this audio is excluded from any commercial use). The reference clip is not redistributed.
 
 Datasets:
 
