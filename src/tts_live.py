@@ -41,8 +41,8 @@ def available(path=SOCKET):
 
 
 def start_server(path=SOCKET, log=None):
-    """Launch the server detached (no-op if one answers). Returns the Popen or None."""
-    if available(path):
+    """Launch the server detached (no-op if one answers or the voice isn't installed). Returns the Popen or None."""
+    if available(path) or not Path(TTS_PYTHON).exists():
         return None
     out = open(log, "a") if log else subprocess.DEVNULL
     return subprocess.Popen([TTS_PYTHON, "-W", "ignore", str(SERVER), "--socket", path],
